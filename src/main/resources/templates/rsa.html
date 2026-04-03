@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Thuật toán RSA – Crypto Tool</title>
+    <link rel="stylesheet" href="/css/theme.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css"/>
+    <style>
+        .sidebar { width: 280px; min-height: 100vh; background: #fff; border-right: 1px solid #e2e8f0; }
+        .main-content { flex: 1; min-height: 100vh; background: #f8f9fa; overflow-y: auto; }
+        .nav-link { color: #4b5563; font-weight: 500; border-radius: 8px; margin-bottom: 4px; padding: 10px 16px; }
+        .nav-link:hover { background: #f1f5f9; color: #1e293b; }
+        .nav-link.active { background: var(--bs-primary-bg-subtle) !important; color: var(--bs-primary) !important; font-weight: 600; }
+        .steps-list { list-style: none; padding-left: 0; }
+        .steps-list li { padding: 12px 16px 12px 48px; border-bottom: 1px solid var(--bs-border-color); font-family: var(--bs-font-monospace); font-size: 0.9rem; position: relative; counter-increment: step-cnt; }
+        .steps-list { counter-reset: step-cnt; }
+        .steps-list li::before { content: counter(step-cnt); position: absolute; left: 16px; top: 12px; background: var(--bs-warning-bg-subtle); color: var(--bs-warning); width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; font-family: var(--bs-font-sans-serif); }
+        .steps-list li:last-child { border-bottom: none; }
+        .steps-list li.success-step { color: var(--bs-success); background-color: var(--bs-success-bg-subtle); font-weight: 600;}
+        .steps-list li.success-step::before { background: var(--bs-success); color: white; content: "✓"; }
+    </style>
+</head>
+<body class="d-flex flex-nowrap" style="height: 100vh; overflow: hidden;">
+
+<!-- Sidebar -->
+<aside class="sidebar d-flex flex-column flex-shrink-0 p-4 shadow-sm z-3">
+    <a href="/" class="d-flex align-items-center mb-1 text-decoration-none text-dark">
+        <i class="ti ti-shield-check fs-2 text-primary me-2"></i>
+        <span class="fs-4 fw-bold">Crypto Tool</span>
+    </a>
+    <div class="text-muted small text-uppercase fw-semibold mb-4 ms-1" style="letter-spacing:1px">Mật mã học - Nhóm 2</div>
+    
+    <ul class="nav nav-pills flex-column mb-auto">
+        <li class="nav-item">
+            <a href="/" class="nav-link d-flex align-items-center">
+                <i class="ti ti-layout-dashboard fs-4 me-3"></i> Trang chủ
+            </a>
+        </li>
+        <li class="mt-4 mb-2 ms-3 text-muted small fw-bold text-uppercase" style="letter-spacing:1px">Công cụ</li>
+        <li class="nav-item">
+            <a href="/vigenere" class="nav-link d-flex align-items-center">
+                <i class="ti ti-key fs-4 me-3"></i> Mã Vigenere
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="/modulo" class="nav-link d-flex align-items-center">
+                <i class="ti ti-math-function fs-4 me-3"></i> Nghịch đảo Modulo
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="/des" class="nav-link d-flex align-items-center">
+                <i class="ti ti-lock fs-4 me-3"></i> Thuật toán DES
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="/aes" class="nav-link d-flex align-items-center">
+                <i class="ti ti-binary fs-4 me-3"></i> Thuật toán AES
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="/rsa" class="nav-link active d-flex align-items-center">
+                <i class="ti ti-lock-square-rounded fs-4 me-3"></i> Thuật toán RSA
+            </a>
+        </li>
+    </ul>
+</aside>
+
+<!-- Main content -->
+<main class="main-content">
+    <div class="p-4 p-lg-5">
+        
+        <div class="d-flex align-items-center justify-content-between mb-4">
+            <div>
+                <span class="badge bg-warning-subtle text-warning py-1 px-3 mb-2 rounded-pill font-monospace"><i class="ti ti-shield-lock"></i> Mật mã khóa công khai</span>
+                <h2 class="fw-bold mb-1">Thuật toán RSA</h2>
+                <p class="text-muted mb-0">Hệ mã hóa bất đối xứng: sinh khóa PU/PR chuẩn, thực hiện thao tác mã hóa M và giải mã C.</p>
+            </div>
+        </div>
+
+        <div class="row g-4 mb-4">
+            <!-- Form -->
+            <div class="col-xl-4 col-lg-5">
+                <div class="card shadow-sm border-0 rounded-4">
+                    <div class="card-header bg-white border-bottom-0 pt-4 pb-0">
+                        <h5 class="card-title fw-bold m-0"><i class="ti ti-settings text-warning me-2"></i>Tham số RSA</h5>
+                    </div>
+                    <div class="card-body p-4">
+                        <form id="rsa-form" th:action="@{/rsa}" th:object="${request}" method="post">
+                            
+                            <div class="row g-3 mb-3">
+                                <div class="col-6">
+                                    <label class="form-label fw-semibold" for="rsa-p">Số tố p <span class="text-danger">*</span></label>
+                                    <div class="input-group">
+                                        <input id="rsa-p" type="number" class="form-control" th:field="*{p}" placeholder="VD: 61"/>
+                                        <button class="btn btn-outline-secondary" type="button" onclick="suggestPrime('rsa-p')" title="Tạo random p" tabindex="-1"><i class="ti ti-dice-5"></i></button>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label fw-semibold" for="rsa-q">Số tố q <span class="text-danger">*</span></label>
+                                    <div class="input-group">
+                                        <input id="rsa-q" type="number" class="form-control" th:field="*{q}" placeholder="VD: 53"/>
+                                        <button class="btn btn-outline-secondary" type="button" onclick="suggestPrime('rsa-q')" title="Tạo random q" tabindex="-1"><i class="ti ti-dice-5"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <label class="form-label fw-semibold" for="rsa-e">Khóa công khai e <span class="text-danger">*</span></label>
+                                <input id="rsa-e" type="number" class="form-control" th:field="*{e}" placeholder="Nhập e (coprime với φ(n))"/>
+                            </div>
+
+                            <hr class="my-4">
+                            
+                            <div class="mb-4">
+                                <label class="form-label fw-semibold" for="rsa-m">Bản rõ M <span class="text-muted fw-normal">(Không bắt buộc)</span></label>
+                                <input id="rsa-m" type="number" class="form-control" th:field="*{message}" placeholder="Nhập M < n..."/>
+                                <div class="form-text">Nếu bỏ trống sẽ chỉ thực hiện tính cặp khóa (KeyGen).</div>
+                            </div>
+
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-warning py-2 fw-semibold text-dark"><i class="ti ti-player-play-filled me-2"></i>Chạy thuật toán</button>
+                                <a href="/rsa" class="btn btn-light text-muted py-2">Xóa form</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Result -->
+            <div class="col-xl-8 col-lg-7">
+                
+                <!-- Error Alert -->
+                <div th:if="${response != null and response.errorMessage != null}" class="alert alert-danger d-flex align-items-center rounded-3 mb-4" role="alert">
+                    <i class="ti ti-alert-triangle fs-3 me-3"></i>
+                    <div><span class="fw-bold">Lỗi phần mềm:</span> <span th:text="${response.errorMessage}"></span></div>
+                </div>
+
+                <div th:if="${response != null and response.n != null}">
+                    
+                    <!-- Keys Result Box -->
+                    <div class="card border-0 shadow-sm rounded-4 mb-4 overflow-hidden">
+                        <div class="card-header bg-white pt-4 pb-0 border-0">
+                            <h5 class="fw-bold"><i class="ti ti-key text-warning me-2"></i>Tham số Khóa</h5>
+                        </div>
+                        <div class="card-body p-4 pt-3">
+                            <div class="row g-4 text-center mb-4">
+                                <div class="col-6">
+                                    <div class="p-3 bg-light rounded-3 border">
+                                        <div class="text-muted small text-uppercase fw-semibold mb-1">Mô-đun (n)</div>
+                                        <div class="fs-4 fw-bold font-monospace" th:text="${response.n}"></div>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="p-3 bg-light rounded-3 border">
+                                        <div class="text-muted small text-uppercase fw-semibold mb-1">Số Euler (φ)</div>
+                                        <div class="fs-4 fw-bold font-monospace" th:text="${response.phi}"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row g-4">
+                                <div class="col-md-6">
+                                    <div class="card bg-success-subtle text-success-emphasis border-success-subtle h-100">
+                                        <div class="card-body">
+                                            <div class="d-flex align-items-center mb-2">
+                                                <i class="ti ti-lock-open fs-3 me-2"></i>
+                                                <h6 class="mb-0 fw-bold">Public Key (PU)</h6>
+                                            </div>
+                                            <div class="font-monospace fs-5 fw-bold" th:text="${response.publicKey}"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="card bg-danger-subtle text-danger-emphasis border-danger-subtle h-100">
+                                        <div class="card-body">
+                                            <div class="d-flex align-items-center mb-2">
+                                                <i class="ti ti-lock fs-3 me-2"></i>
+                                                <h6 class="mb-0 fw-bold">Private Key (PR)</h6>
+                                            </div>
+                                            <div class="font-monospace fs-5 fw-bold" th:text="${response.privateKey}"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- M/C Result Box -->
+                    <div th:if="${response.ciphertext != null}" class="card bg-primary text-white border-0 shadow-sm rounded-4 mb-4">
+                        <div class="card-body p-4">
+                            <div class="row align-items-center text-center">
+                                <div class="col-md-5">
+                                    <div class="text-uppercase fw-semibold mb-2 opacity-75 small">Bản mã C = Mᵉ mod n</div>
+                                    <div class="fs-2 fw-bold font-monospace d-flex align-items-center justify-content-center gap-2">
+                                        <span th:text="${response.ciphertext}"></span>
+                                        <button class="btn btn-sm btn-outline-light border-0 px-2" th:data-value="${response.ciphertext}" onclick="copyToClipboard(this.dataset.value, this)"><i class="ti ti-copy"></i></button>
+                                    </div>
+                                </div>
+                                <div class="col-md-2 my-3 my-md-0 d-flex justify-content-center opacity-50">
+                                    <i class="ti ti-arrows-exchange fs-1"></i>
+                                </div>
+                                <div class="col-md-5">
+                                    <div class="text-uppercase fw-semibold mb-2 opacity-75 small">Bản rõ M' = Cᵈ mod n</div>
+                                    <div class="fs-2 fw-bold font-monospace d-flex align-items-center justify-content-center gap-2">
+                                        <span th:text="${response.plaintext}"></span>
+                                        <button class="btn btn-sm btn-outline-light border-0 px-2" th:data-value="${response.plaintext}" onclick="copyToClipboard(this.dataset.value, this)"><i class="ti ti-copy"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Steps List -->
+                    <div class="card shadow-sm border-0 rounded-4">
+                        <div class="card-header bg-white border-bottom-0 pb-0 pt-4">
+                            <h5 class="card-title fw-bold mb-0"><i class="ti ti-list-details text-warning me-2"></i>Quy trình tính toán</h5>
+                        </div>
+                        <div class="card-body p-4 pt-3">
+                            <ol class="steps-list m-0 border rounded-3 overflow-hidden bg-light" id="rsa-steps-list">
+                                <li th:each="step : ${response.steps}" th:classappend="${#strings.startsWith(step, '✓')} ? 'success-step' : ''" th:text="${step}"></li>
+                            </ol>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+</main>
+
+<script src="/js/script.js"></script>
+</body>
+</html>
