@@ -6,7 +6,7 @@ public class VigenereResponse {
     private String result;
     private String mode;
     private String keyType;
-    private List<VigenereStep> steps;
+    private List<String> transcript;
     private String errorMessage;
 
     public String getResult() { return result; }
@@ -15,8 +15,8 @@ public class VigenereResponse {
     public void setMode(String mode) { this.mode = mode; }
     public String getKeyType() { return keyType; }
     public void setKeyType(String keyType) { this.keyType = keyType; }
-    public List<VigenereStep> getSteps() { return steps; }
-    public void setSteps(List<VigenereStep> steps) { this.steps = steps; }
+    public List<String> getTranscript() { return transcript; }
+    public void setTranscript(List<String> transcript) { this.transcript = transcript; }
     public String getErrorMessage() { return errorMessage; }
     public void setErrorMessage(String errorMessage) { this.errorMessage = errorMessage; }
 }

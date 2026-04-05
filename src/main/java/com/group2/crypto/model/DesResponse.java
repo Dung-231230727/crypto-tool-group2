@@ -1,5 +1,7 @@
 package com.group2.crypto.model;
 
+import java.util.ArrayList;
+import java.util.List;
 
 public class DesResponse {
     private String result = "";
@@ -7,10 +9,10 @@ public class DesResponse {
     private String mode = "";
     private String inputData = "";
     private String inputKey = "";
-    private java.util.List<DesStep> steps = new java.util.ArrayList<>();
-    
-    public java.util.List<DesStep> getSteps() { return steps; }
-    public void setSteps(java.util.List<DesStep> steps) { this.steps = steps; }
+    private List<String> transcript = new ArrayList<>();
+
+    public List<String> getTranscript() { return transcript; }
+    public void setTranscript(List<String> transcript) { this.transcript = transcript; }
     
     public String getResult() { return result; }
     public void setResult(String result) { this.result = result; }

@@ -2,7 +2,6 @@ package com.group2.crypto.service;
 
 import com.group2.crypto.model.AesRequest;
 import com.group2.crypto.model.AesResponse;
-import com.group2.crypto.model.AesStep;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -31,13 +30,6 @@ public class AesService {
         (byte) 0x8c, (byte) 0xa1, (byte) 0x89, (byte) 0x0d, (byte) 0xbf, (byte) 0xe6, (byte) 0x42, (byte) 0x68, (byte) 0x41, (byte) 0x99, (byte) 0x2d, (byte) 0x0f, (byte) 0xb0, (byte) 0x54, (byte) 0xbb, (byte) 0x16
     };
 
-    private static final byte[] INV_SBOX = new byte[256];
-    static {
-        for (int i = 0; i < 256; i++) {
-            INV_SBOX[SBOX[i] & 0xFF] = (byte) i;
-        }
-    }
-
     private static final int[] RCON = {
         0x01000000, 0x02000000, 0x04000000, 0x08000000, 0x10000000, 0x20000000, 0x40000000, 0x80000000, 0x1B000000, 0x36000000
     };
@@ -49,23 +41,36 @@ public class AesService {
         response.setMode(request.getMode());
 
         try {
-            byte[] data = HexFormat.of().parseHex(request.getData().replaceAll("\\s+", ""));
-            byte[] key = HexFormat.of().parseHex(request.getKey().replaceAll("\\s+", ""));
+            String cleanData = request.getData().replaceAll("\\s+", "");
+            String cleanKey = request.getKey().replaceAll("\\s+", "");
+            byte[] data = HexFormat.of().parseHex(cleanData);
+            byte[] key = HexFormat.of().parseHex(cleanKey);
 
             if (data.length != 16 || key.length != 16) {
                 response.setErrorMessage("Dữ liệu và khóa phải đủ 128-bit (32 ký tự hex).");
                 return response;
             }
 
-            List<AesStep> steps = new ArrayList<>();
+            List<String> transcript = new ArrayList<>();
+            transcript.add("Input: M = " + cleanData.toUpperCase());
+            transcript.add("       K = " + cleanKey.toUpperCase());
+            transcript.add("");
+            transcript.add("PHẦN 1: SINH 10 KHÓA Ki từ khóa K (input), i = 1, 2, ..., 10.");
+
+            byte[][][] roundKeys = KeyExpansion(key, transcript);
+            
+            transcript.add("");
+            transcript.add("PHẦN 2: MÃ HÓA");
+
             byte[] result;
             if ("encrypt".equalsIgnoreCase(request.getMode())) {
-                result = encrypt(data, key, steps);
+                result = AES(data, roundKeys, transcript);
             } else {
-                result = decrypt(data, key, steps);
+                result = decrypt(data, roundKeys, transcript);
             }
+            
             response.setResult(HexFormat.of().formatHex(result).toUpperCase());
-            response.setSteps(steps);
+            response.setTranscript(transcript);
 
         } catch (Exception e) {
             response.setErrorMessage("Lỗi xử lý: " + e.getMessage());
@@ -74,171 +79,195 @@ public class AesService {
         return response;
     }
 
-    private byte[] encrypt(byte[] plaintext, byte[] key, List<AesStep> steps) {
-        byte[][][] roundKeys = keyExpansion(key);
+    private byte[][][] KeyExpansion(byte[] key, List<String> transcript) {
+        int[] w = new int[44];
+        byte[][][] roundKeys = new byte[11][4][4];
+
+        // Initial 4 words
+        for (int i = 0; i < 4; i++) {
+            w[i] = ((key[4 * i] & 0xFF) << 24) | ((key[4 * i + 1] & 0xFF) << 16) | ((key[4 * i + 2] & 0xFF) << 8) | (key[4 * i + 3] & 0xFF);
+        }
         
-        // --- Step 0: BẢN RÕ (INPUT) ---
-        AesStep inputStep = new AesStep("BẢN RÕ (INPUT)", -1);
+        setRoundKey(roundKeys[0], w, 0);
+
+        for (int round = 1; round <= 10; round++) {
+            transcript.add("");
+            transcript.add("• Tìm K" + round + ":");
+            
+            int i = round * 4;
+            int temp = w[i - 1];
+            
+            transcript.add("1. Chia khóa K" + (round - 1) + " (128 bit) thành 4 word (32 bit)");
+            transcript.add("   Input: K" + (round-1) + " (input) = " + wordsToHex(w, i-4, 4));
+            transcript.add("   Output: " + String.format("w%d = %08X, w%d = %08X, w%d = %08X, w%d = %08X", i-4, w[i-4], i-3, w[i-3], i-2, w[i-2], i-1, w[i-1]));
+
+            // Step 2: RotWord
+            int rw = rotWord(temp);
+            transcript.add("2. Dịch vòng trái 1 byte đối với w" + (i-1) + " (32 bit)");
+            transcript.add("   Input: w" + (i-1) + " = " + String.format("%08X", temp));
+            transcript.add("   Output: rw = RotWord(w" + (i-1) + ") = " + String.format("%08X", rw));
+
+            // Step 3: SubWord
+            int sw = subWord(rw);
+            transcript.add("3. Thay thế từng byte trong rw bằng bảng S-box SubWord");
+            transcript.add("   Input: rw = " + String.format("%08X", rw) + "; Sbox");
+            transcript.add("   Output: sw = SubWord(rw) = " + String.format("%08X", sw));
+
+            // Step 4: XOR with Rcon
+            int rconVal = RCON[round - 1];
+            int xcsw = sw ^ rconVal;
+            transcript.add("4. sw XORbit với Rcon[" + round + "]");
+            transcript.add("   Input: sw = " + String.format("%08X", sw) + "; RC[" + round + "] = " + String.format("%08X", rconVal));
+            transcript.add("   Output: xcsw = XorRcon(sw, RC[" + round + "]) = " + String.format("%08X", xcsw));
+
+            // Step 5: Finalize round words
+            transcript.add("5. Tính khóa K" + round + " = (w" + i + ", w" + (i+1) + ", w" + (i+2) + ", w" + (i+3) + ")");
+            transcript.add("   Input: xcsw = " + String.format("%08X", xcsw) + "; w" + (i-4) + ", w" + (i-3) + ", w" + (i-2) + ", w" + (i-1));
+            transcript.add("   Output:");
+            
+            w[i] = w[i-4] ^ xcsw;
+            transcript.add(String.format("   w%d = XORbit(xcsw, w%d) = %08X ⊕ %08X = %08X", i, i-4, xcsw, w[i-4], w[i]));
+            
+            w[i+1] = w[i] ^ w[i-3];
+            transcript.add(String.format("   w%d = XORbit(w%d, w%d) = %08X ⊕ %08X = %08X", i+1, i, i-3, w[i], w[i-3], w[i+1]));
+            
+            w[i+2] = w[i+1] ^ w[i-2];
+            transcript.add(String.format("   w%d = XORbit(w%d, w%d) = %08X ⊕ %08X = %08X", i+2, i+1, i-2, w[i+1], w[i-2], w[i+2]));
+            
+            w[i+3] = w[i+2] ^ w[i-1];
+            transcript.add(String.format("   w%d = XORbit(w%d, w%d) = %08X ⊕ %08X = %08X", i+3, i+2, i-1, w[i+2], w[i-1], w[i+3]));
+
+            transcript.add("   => K" + round + ": " + wordsToHex(w, i, 4));
+            
+            setRoundKey(roundKeys[round], w, i);
+        }
+
+        return roundKeys;
+    }
+
+    private byte[] AES(byte[] plaintext, byte[][][] roundKeys, List<String> transcript) {
         byte[][] state = bytesToState(plaintext);
-        inputStep.setStateStart(copyState(state));
-        inputStep.setStateAfterAdd(copyState(state)); // No change yet
-        steps.add(inputStep);
+        
+        transcript.add("");
+        transcript.add("6. Tính kết quả AddRoundKey");
+        transcript.add("   Input: M (input) = " + stateToHex(state));
+        transcript.add("          K (input) = " + stateToHex(roundKeys[0]));
+        ADDROUNDKEY(state, roundKeys[0]);
+        transcript.add("   Output: state = AddRoundKey(M, K) = " + stateToHex(state));
 
-        // --- Step 1: KHỞI TẠO (AddRoundKey 0) ---
-        AesStep initStep = new AesStep("KHỞI TẠO", 0);
-        initStep.setStateStart(copyState(state));
-        initStep.setRoundKey(roundKeys[0]);
-        addRoundKey(state, roundKeys[0]);
-        initStep.setStateAfterAdd(copyState(state));
-        steps.add(initStep);
+        for (int round = 1; round <= 10; round++) {
+            transcript.add("");
+            transcript.add("======================== VÒNG LẶP THỨ " + round + " ========================");
+            transcript.add("Vòng lặp thứ " + round + ":");
 
-        // --- Step 2-10: Rounds 1-9 ---
-        for (int round = 1; round <= 9; round++) {
-            AesStep roundStep = new AesStep("VÒNG " + round, round);
-            roundStep.setStateStart(copyState(state));
-            
-            subBytes(state);
-            roundStep.setStateAfterSub(copyState(state));
-            
-            shiftRows(state);
-            roundStep.setStateAfterShift(copyState(state));
-            
-            mixColumns(state);
-            roundStep.setStateAfterMix(copyState(state));
-            
-            roundStep.setRoundKey(roundKeys[round]);
-            addRoundKey(state, roundKeys[round]);
-            roundStep.setStateAfterAdd(copyState(state));
-            
-            steps.add(roundStep);
+            transcript.add("7. Thay thế từng byte trong state bằng bảng S-box SubByte");
+            transcript.add("   Input: state " + stateToHex(state));
+            SUBBYTE(state);
+            transcript.add("   Output: state = " + stateToHex(state));
+
+            transcript.add("8. Dịch vòng trái các byte trong state ShiftRows");
+            transcript.add("   Input: " + stateToHex(state));
+            SHIFTROW(state);
+            transcript.add("   Output: state = " + stateToHex(state));
+
+            if (round < 10) {
+                transcript.add("9. Trộn các byte trong state MixColumns");
+                transcript.add("   Input: " + stateToHex(state));
+                MIXCOLUMN(state);
+                transcript.add("   Output: state = " + stateToHex(state));
+            } else {
+                transcript.add("9. (Vòng cuối không có phép MixColumns)");
+            }
+
+            transcript.add("10. Cộng khóa vòng AddRoundKey");
+            transcript.add("   Input: " + stateToHex(state) + ",");
+            transcript.add("          K" + round + " = " + stateToHex(roundKeys[round]));
+            ADDROUNDKEY(state, roundKeys[round]);
+            transcript.add("   Output: state = " + stateToHex(state));
         }
 
-        // --- Step 11: Round 10: Cuối ---
-        AesStep finalStep = new AesStep("VÒNG 10 (CUỐI)", 10);
-        finalStep.setStateStart(copyState(state));
+        transcript.add("");
+        transcript.add("   => C = state = " + stateToHex(state));
         
-        subBytes(state);
-        finalStep.setStateAfterSub(copyState(state));
-        
-        shiftRows(state);
-        finalStep.setStateAfterShift(copyState(state));
-        
-        finalStep.setRoundKey(roundKeys[10]);
-        addRoundKey(state, roundKeys[10]);
-        finalStep.setStateAfterAdd(copyState(state));
-        
-        steps.add(finalStep);
-
         return stateToBytes(state);
     }
 
-    private byte[] decrypt(byte[] ciphertext, byte[] key, List<AesStep> steps) {
-        byte[][][] roundKeys = keyExpansion(key);
-        
-        // --- Step 0: BẢN MÃ (INPUT) ---
-        AesStep inputStep = new AesStep("BẢN MÃ (INPUT)", -1);
+    private byte[] decrypt(byte[] ciphertext, byte[][][] roundKeys, List<String> transcript) {
         byte[][] state = bytesToState(ciphertext);
-        inputStep.setStateStart(copyState(state));
-        inputStep.setStateAfterAdd(copyState(state));
-        steps.add(inputStep);
-
-        // --- Step 1: KHỞI TẠO GIẢI MÃ ---
-        AesStep initStep = new AesStep("KHỞI TẠO GIẢI MÃ", 0);
-        initStep.setStateStart(copyState(state));
-        initStep.setRoundKey(roundKeys[10]);
-        addRoundKey(state, roundKeys[10]);
-        initStep.setStateAfterAdd(copyState(state));
-        steps.add(initStep);
-
-        // --- Rounds 1-9 (10-1 in reverse logic) ---
+        transcript.add("Bắt đầu giải mã...");
+        ADDROUNDKEY(state, roundKeys[10]);
         for (int round = 9; round >= 1; round--) {
-            AesStep roundStep = new AesStep("VÒNG " + (10 - round), 10 - round);
-            roundStep.setStateStart(copyState(state));
-            
             invShiftRows(state);
-            roundStep.setStateAfterShift(copyState(state));
-            
             invSubBytes(state);
-            roundStep.setStateAfterSub(copyState(state));
-            
-            roundStep.setRoundKey(roundKeys[round]);
-            addRoundKey(state, roundKeys[round]);
-            roundStep.setStateAfterAdd(copyState(state));
-            
+            ADDROUNDKEY(state, roundKeys[round]);
             invMixColumns(state);
-            roundStep.setStateAfterMix(copyState(state));
-            
-            steps.add(roundStep);
         }
-
-        // --- Final Step: Cuối (AddRoundKey 0) ---
-        AesStep lastStep = new AesStep("VÒNG CUỐI (GIẢI MÃ)", 10);
-        lastStep.setStateStart(copyState(state));
-        
         invShiftRows(state);
-        lastStep.setStateAfterShift(copyState(state));
-        
         invSubBytes(state);
-        lastStep.setStateAfterSub(copyState(state));
-        
-        lastStep.setRoundKey(roundKeys[0]);
-        addRoundKey(state, roundKeys[0]);
-        lastStep.setStateAfterAdd(copyState(state));
-        
-        steps.add(lastStep);
-
+        ADDROUNDKEY(state, roundKeys[0]);
         return stateToBytes(state);
     }
 
-    private byte[][] copyState(byte[][] state) {
-        byte[][] copy = new byte[4][4];
-        for (int i = 0; i < 4; i++) {
-            System.arraycopy(state[i], 0, copy[i], 0, 4);
+    private String wordsToHex(int[] w, int start, int count) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < count; i++) {
+            sb.append(String.format("%08X", w[start + i]));
         }
-        return copy;
+        return sb.toString();
     }
 
-    private byte[][] bytesToState(byte[] bytes) {
-        byte[][] state = new byte[4][4];
-        for (int i = 0; i < 16; i++) {
-            state[i % 4][i / 4] = bytes[i];
-        }
-        return state;
+    private String stateToHex(byte[][] state) {
+        byte[] bytes = stateToBytes(state);
+        return HexFormat.of().formatHex(bytes).toUpperCase();
     }
 
-    private byte[] stateToBytes(byte[][] state) {
-        byte[] bytes = new byte[16];
-        for (int i = 0; i < 16; i++) {
-            bytes[i] = state[i % 4][i / 4];
-        }
-        return bytes;
-    }
-
-    private void addRoundKey(byte[][] state, byte[][] roundKey) {
-        for (int i = 0; i < 4; i++) {
-            for (int j = 0; j < 4; j++) {
-                state[i][j] ^= roundKey[i][j];
-            }
+    private void setRoundKey(byte[][] state, int[] w, int start) {
+        for (int j = 0; j < 4; j++) {
+            int word = w[start + j];
+            state[0][j] = (byte) (word >>> 24);
+            state[1][j] = (byte) (word >>> 16);
+            state[2][j] = (byte) (word >>> 8);
+            state[3][j] = (byte) word;
         }
     }
 
-    private void subBytes(byte[][] state) {
-        for (int i = 0; i < 4; i++) {
-            for (int j = 0; j < 4; j++) {
-                state[i][j] = SBOX[state[i][j] & 0xFF];
-            }
-        }
+    private int rotWord(int w) {
+        return (w << 8) | (w >>> 24);
+    }
+
+    private int subWord(int w) {
+        return ((SBOX[(w >>> 24) & 0xFF] & 0xFF) << 24) |
+               ((SBOX[(w >>> 16) & 0xFF] & 0xFF) << 16) |
+               ((SBOX[(w >>> 8) & 0xFF] & 0xFF) << 8) |
+               (SBOX[w & 0xFF] & 0xFF);
+    }
+
+    private void ADDROUNDKEY(byte[][] state, byte[][] roundKey) {
+        for (int r = 0; r < 4; r++)
+            for (int c = 0; c < 4; c++)
+                state[r][c] ^= roundKey[r][c];
+    }
+
+    private void SUBBYTE(byte[][] state) {
+        for (int r = 0; r < 4; r++)
+            for (int c = 0; c < 4; c++)
+                state[r][c] = SBOX[state[r][c] & 0xFF];
     }
 
     private void invSubBytes(byte[][] state) {
-        for (int i = 0; i < 4; i++) {
-            for (int j = 0; j < 4; j++) {
-                state[i][j] = INV_SBOX[state[i][j] & 0xFF];
+        for (int r = 0; r < 4; r++)
+            for (int c = 0; c < 4; c++) {
+                byte b = state[r][c];
+                for (int i = 0; i < 256; i++) {
+                    if (SBOX[i] == b) {
+                        state[r][c] = (byte) i;
+                        break;
+                    }
+                }
             }
-        }
     }
 
-    private void shiftRows(byte[][] state) {
+    private void SHIFTROW(byte[][] state) {
         for (int r = 1; r < 4; r++) {
             byte[] row = new byte[4];
             for (int c = 0; c < 4; c++) row[c] = state[r][c];
@@ -254,7 +283,7 @@ public class AesService {
         }
     }
 
-    private void mixColumns(byte[][] state) {
+    private void MIXCOLUMN(byte[][] state) {
         for (int c = 0; c < 4; c++) {
             byte b0 = state[0][c], b1 = state[1][c], b2 = state[2][c], b3 = state[3][c];
             state[0][c] = (byte) (gm(2, b0) ^ gm(3, b1) ^ b2 ^ b3);
@@ -279,50 +308,28 @@ public class AesService {
         int bb = b & 0xFF;
         for (int i = 0; i < 8; i++) {
             if ((a & 1) != 0) res ^= bb;
-            boolean hiBit = (bb & 0x80) != 0;
+            int hi_bit = (bb & 0x80);
             bb <<= 1;
-            if (hiBit) bb ^= 0x1B;
+            if (hi_bit != 0) bb ^= 0x1B;
+            bb &= 0xFF;
             a >>= 1;
         }
-        return (byte) (res & 0xFF);
+        return (byte) res;
     }
 
-    private byte[][][] keyExpansion(byte[] key) {
-        int[] w = new int[44];
-        for (int i = 0; i < 4; i++) {
-            w[i] = (key[4 * i] << 24) | ((key[4 * i + 1] & 0xFF) << 16) | ((key[4 * i + 2] & 0xFF) << 8) | (key[4 * i + 3] & 0xFF);
+    private byte[][] bytesToState(byte[] bytes) {
+        byte[][] state = new byte[4][4];
+        for (int i = 0; i < 16; i++) {
+            state[i % 4][i / 4] = bytes[i];
         }
-
-        for (int i = 4; i < 44; i++) {
-            int temp = w[i - 1];
-            if (i % 4 == 0) {
-                temp = subWord(rotWord(temp)) ^ RCON[i / 4 - 1];
-            }
-            w[i] = w[i - 4] ^ temp;
-        }
-
-        byte[][][] roundKeys = new byte[11][4][4];
-        for (int round = 0; round < 11; round++) {
-            for (int j = 0; j < 4; j++) {
-                int word = w[round * 4 + j];
-                roundKeys[round][0][j] = (byte) (word >>> 24);
-                roundKeys[round][1][j] = (byte) (word >>> 16);
-                roundKeys[round][2][j] = (byte) (word >>> 8);
-                roundKeys[round][3][j] = (byte) word;
-            }
-        }
-
-        return roundKeys;
+        return state;
     }
 
-    private int rotWord(int w) {
-        return (w << 8) | (w >>> 24);
-    }
-
-    private int subWord(int w) {
-        return ((SBOX[(w >>> 24) & 0xFF] & 0xFF) << 24) |
-               ((SBOX[(w >>> 16) & 0xFF] & 0xFF) << 16) |
-               ((SBOX[(w >>> 8) & 0xFF] & 0xFF) << 8) |
-               (SBOX[w & 0xFF] & 0xFF);
+    private byte[] stateToBytes(byte[][] state) {
+        byte[] bytes = new byte[16];
+        for (int i = 0; i < 16; i++) {
+            bytes[i] = state[i % 4][i / 4];
+        }
+        return bytes;
     }
 }

@@ -43,7 +43,12 @@ public class VigenereService {
         boolean autokey  = "AUTOKEY".equals(request.getKeyType());
 
         StringBuilder result   = new StringBuilder();
-        List<VigenereStep> steps = new ArrayList<>();
+        List<String> transcript = new ArrayList<>();
+
+        transcript.add("THUẬT TOÁN VIGENERE (" + request.getMode() + ", " + request.getKeyType() + ")");
+        transcript.add("Input: " + text);
+        transcript.add("Key:   " + key);
+        transcript.add("");
 
         // keystream for autokey mode
         StringBuilder keystream = new StringBuilder(key);
@@ -53,17 +58,9 @@ public class VigenereService {
             char ch = text.charAt(i);
 
             if (ch < 'A' || ch > 'Z') {
-                // Non-alpha: keep as-is
                 result.append(ch);
-                steps.add(new VigenereStep(i, ch, '-', -1, -1,
-                        "Ký tự không phải chữ cái – giữ nguyên", -1, ch, false));
+                transcript.add(String.format("[%02d] Ký tự '%c': Giữ nguyên (không phải chữ cái)", i, ch));
                 continue;
-            }
-
-            // Ensure keystream is long enough (autokey)
-            if (autokey && alphaIdx >= keystream.length()) {
-                // Should not happen – appended incrementally
-                break;
             }
 
             char kc = autokey ? keystream.charAt(alphaIdx) : key.charAt(alphaIdx % key.length());
@@ -74,15 +71,16 @@ public class VigenereService {
 
             if (encrypt) {
                 rv = (pv + kv) % SIZE;
-                formula = "(" + pv + " + " + kv + ") mod 26 = " + rv;
+                formula = String.format("(%d + %d) mod 26 = %d", pv, kv, rv);
             } else {
                 rv = (pv - kv + SIZE) % SIZE;
-                formula = "(" + pv + " - " + kv + " + 26) mod 26 = " + rv;
+                formula = String.format("(%d - %d + 26) mod 26 = %d", pv, kv, rv);
             }
 
             char out = (char)('A' + rv);
             result.append(out);
-            steps.add(new VigenereStep(i, ch, kc, pv, kv, formula, rv, out, true));
+            transcript.add(String.format("[%02d] '%c' (%2d) %s '%c' (%2d) -> %s -> '%c' (%2d)", 
+                i, ch, pv, (encrypt ? "+" : "-"), kc, kv, formula, out, rv));
 
             // Extend keystream for autokey
             if (autokey) {
@@ -92,7 +90,7 @@ public class VigenereService {
         }
 
         response.setResult(result.toString());
-        response.setSteps(steps);
+        response.setTranscript(transcript);
         return response;
     }
 }

@@ -1,467 +1,138 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
 <head>
-    <meta charset="UTF-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Thuật toán AES – Crypto Tool</title>
-    <link rel="stylesheet" href="/css/theme.css"/>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css"/>
-    <style>
-        .sidebar { width: 280px; min-height: 100vh; background: #fff; border-right: 1px solid #e2e8f0; }
-        .main-content { flex: 1; min-height: 100vh; background: #f8f9fa; overflow-y: auto; }
-        .nav-link { color: #4b5563; font-weight: 500; border-radius: 8px; margin-bottom: 4px; padding: 10px 16px; }
-        .nav-link:hover { background: #f1f5f9; color: #1e293b; }
-        .nav-link.active { background: var(--bs-primary-bg-subtle) !important; color: var(--bs-primary) !important; font-weight: 600; }
-    </style>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Thuật toán AES – Nhóm 2</title>
+    <link rel="stylesheet" href="/css/theme.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css" />
 </head>
+
 <body class="d-flex flex-nowrap" style="height: 100vh; overflow: hidden;">
 
-<!-- Sidebar -->
-<aside class="sidebar d-flex flex-column flex-shrink-0 p-4 shadow-sm z-3">
-    <a href="/" class="d-flex align-items-center mb-1 text-decoration-none text-dark">
-        <i class="ti ti-shield-check fs-2 text-primary me-2"></i>
-        <span class="fs-4 fw-bold">Crypto Tool</span>
-    </a>
-    <div class="text-muted small text-uppercase fw-semibold mb-4 ms-1" style="letter-spacing:1px">Mật mã học - Nhóm 2</div>
-    
-    <ul class="nav nav-pills flex-column mb-auto">
-        <li class="nav-item">
-            <a href="/" class="nav-link d-flex align-items-center">
-                <i class="ti ti-layout-dashboard fs-4 me-3"></i> Trang chủ
-            </a>
-        </li>
-        <li class="mt-4 mb-2 ms-3 text-muted small fw-bold text-uppercase" style="letter-spacing:1px">Công cụ</li>
-        <li class="nav-item">
-            <a href="/vigenere" class="nav-link d-flex align-items-center">
-                <i class="ti ti-key fs-4 me-3"></i> Mã Vigenere
-            </a>
-        </li>
-        <li class="nav-item">
-            <a href="/modulo" class="nav-link d-flex align-items-center">
-                <i class="ti ti-math-function fs-4 me-3"></i> Nghịch đảo Modulo
-            </a>
-        </li>
-        <li class="nav-item">
-            <a href="/des" class="nav-link d-flex align-items-center">
-                <i class="ti ti-lock fs-4 me-3"></i> Thuật toán DES
-            </a>
-        </li>
-        <li class="nav-item">
-            <a href="/aes" class="nav-link active d-flex align-items-center">
-                <i class="ti ti-binary fs-4 me-3"></i> Thuật toán AES
-            </a>
-        </li>
-        <li class="nav-item">
-            <a href="/rsa" class="nav-link d-flex align-items-center">
-                <i class="ti ti-lock-square-rounded fs-4 me-3"></i> Thuật toán RSA
-            </a>
-        </li>
-    </ul>
-</aside>
+    <aside th:replace="~{fragments/sidebar :: sidebar}"></aside>
 
-<!-- Main content -->
-<main class="main-content">
-    <div class="p-4 p-lg-5">
-        
-        <div class="d-flex align-items-center justify-content-between mb-4">
-            <div>
-                <span class="badge bg-indigo-subtle text-indigo py-1 px-3 mb-2 rounded-pill font-monospace"><i class="ti ti-binary"></i> AES-128</span>
-                <h2 class="fw-bold mb-1">Thuật toán AES</h2>
-                <p class="text-muted mb-0">Advanced Encryption Standard - Chuẩn mã hóa tiên tiến 128-bit với 10 vòng lặp biến đổi ma trận.</p>
+    <main class="main-content">
+        <div class="p-4 p-lg-5">
+            <div class="d-flex align-items-center justify-content-between mb-4">
+                <div>
+                    <span class="badge-custom mb-2 d-inline-block">Mật mã hiện đại</span>
+                    <h2 class="fw-bold mb-1">Thuật toán AES-128</h2>
+                    <p class="text-muted mb-0">Advanced Encryption Standard - Chuẩn mã hóa tiên tiến với các phép biến
+                        đổi ma trận.</p>
+                </div>
             </div>
-        </div>
 
-        <div class="row g-4 mb-4">
-            <!-- Form -->
-            <div class="col-xl-4 col-lg-5">
-                <div class="card shadow-sm border-0 rounded-4 h-100">
-                    <div class="card-header bg-white border-bottom-0 pt-4 pb-0">
-                        <h5 class="card-title fw-bold m-0"><i class="ti ti-settings text-indigo me-2" style="color: #6366f1;"></i>Cấu hình AES</h5>
+            <div class="row g-4">
+                <div class="col-xl-4 col-lg-5">
+                    <div class="card card-crypto">
+                        <div class="card-body p-4">
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <h5 class="fw-bold mb-0">Cấu hình AES</h5>
+                                <button type="button"
+                                    class="btn btn-sm btn-link text-primary text-decoration-none fw-bold p-0"
+                                    onclick="useSampleData()">
+                                    <i class="ti ti-magic-wand me-1"></i>Dữ liệu mẫu
+                                </button>
+                            </div>
+
+                            <form th:action="@{/aes}" th:object="${request}" method="post">
+                                <div class="mb-3">
+                                    <label class="form-label small fw-bold text-uppercase text-muted">Dữ liệu (Hex - 32
+                                        ký tự)</label>
+                                    <input type="text" class="form-control font-monospace text-uppercase"
+                                        th:field="*{data}" id="inputData" maxlength="32"
+                                        placeholder="00112233445566778899AABBCCDDEEFF" required />
+                                </div>
+                                <div class="mb-4">
+                                    <label class="form-label small fw-bold text-uppercase text-muted">Khóa (Hex - 32 ký
+                                        tự)</label>
+                                    <input type="text" class="form-control font-monospace text-uppercase"
+                                        th:field="*{key}" id="inputKey" maxlength="32"
+                                        placeholder="000102030405060708090A0B0C0D0E0F" required />
+                                </div>
+
+                                <div class="mb-4">
+                                    <label class="form-label small fw-bold text-uppercase text-muted">Chế độ</label>
+                                    <div class="btn-group w-100">
+                                        <input type="radio" class="btn-check" th:field="*{mode}" value="encrypt"
+                                            id="mode-enc" checked>
+                                        <label class="btn btn-outline-primary" for="mode-enc">Mã hóa</label>
+                                        <input type="radio" class="btn-check" th:field="*{mode}" value="decrypt"
+                                            id="mode-dec">
+                                        <label class="btn btn-outline-primary" for="mode-dec">Giải mã</label>
+                                    </div>
+                                </div>
+
+                                <button type="submit" class="btn btn-primary-custom w-100 py-2">Thực thi</button>
+                            </form>
+                        </div>
                     </div>
-                    <div class="card-body p-4">
-                        <form th:action="@{/aes}" th:object="${request}" method="post">
-                            <div class="mb-4">
-                                <label class="form-label fw-semibold">Dữ liệu (Hex - 32 ký tự) <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control font-monospace" th:field="*{data}" placeholder="Ví dụ: 0123456789ABCDEFFEDCBA9876543210" required maxlength="32"/>
-                                <div class="form-text">Dữ liệu đầu vào 128-bit (16 bytes).</div>
-                            </div>
+                </div>
 
-                            <div class="mb-4">
-                                <label class="form-label fw-semibold">Khóa (Hex - 32 ký tự) <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control font-monospace" th:field="*{key}" placeholder="Ví dụ: 0F1571C947D9E8590CB7ADD6AF7F6798" required maxlength="32"/>
-                                <div class="form-text">Khóa mã hóa chuẩn AES-128.</div>
-                            </div>
+                <div class="col-xl-8 col-lg-7">
+                    <div th:if="${response != null}">
+                        <div th:if="${response.errorMessage != null}"
+                            class="alert alert-danger border-0 shadow-sm mb-4">
+                            <i class="ti ti-alert-circle me-2"></i> <span th:text="${response.errorMessage}"></span>
+                        </div>
 
-                            <div class="mb-4">
-                                <label class="form-label fw-semibold">Chế độ <span class="text-danger">*</span></label>
-                                <div class="btn-group w-100" role="group">
-                                    <input type="radio" class="btn-check" th:field="*{mode}" value="encrypt" id="mode-enc-aes" autocomplete="off" checked>
-                                    <label class="btn btn-outline-indigo" for="mode-enc-aes">Mã hóa</label>
-                                  
-                                    <input type="radio" class="btn-check" th:field="*{mode}" value="decrypt" id="mode-dec-aes" autocomplete="off">
-                                    <label class="btn btn-outline-indigo" for="mode-dec-aes">Giải mã</label>
+                        <div th:if="${response.result != null}">
+                            <div class="card card-crypto mb-4 border-primary">
+                                <div class="card-body p-4">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <span class="small fw-bold text-uppercase text-muted"
+                                            th:text="${response.mode == 'encrypt' ? 'Kết quả Mã hóa (Hex)' : 'Kết quả Giải mã (Hex)'}"></span>
+                                        <button class="btn btn-sm btn-outline-secondary rounded-pill"
+                                            th:data-value="${response.result}"
+                                            onclick="navigator.clipboard.writeText(this.dataset.value)">Sao
+                                            chép</button>
+                                    </div>
+                                    <div class="fs-2 fw-bold font-monospace text-primary text-break"
+                                        th:text="${response.result}"></div>
                                 </div>
                             </div>
 
-                            <hr class="my-4">
-                            <div class="d-grid gap-2">
-                                <button type="submit" class="btn btn-indigo py-2 fw-semibold text-white" style="background-color: #6366f1; border-color: #6366f1;"><i class="ti ti-shield-lock me-2"></i>Thực thi AES</button>
-                                <a href="/aes" class="btn btn-light text-muted py-2 font-monospace">Làm mới</a>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Result -->
-            <div class="col-xl-8 col-lg-7">
-                <div th:if="${response != null and response.errorMessage != null}" class="alert alert-danger d-flex align-items-center rounded-3 mb-4" role="alert">
-                    <i class="ti ti-alert-triangle fs-3 me-3 text-danger"></i>
-                    <div><span class="fw-bold">Lỗi:</span> <span th:text="${response.errorMessage}"></span></div>
-                </div>
-
-                <div th:if="${response != null and response.result != null}">
-                    <!-- Result Box -->
-                    <div class="card bg-indigo text-white border-0 shadow-sm rounded-4 mb-4" style="background-color: #6366f1;">
-                        <div class="card-body p-4 position-relative overflow-hidden">
-                            <i class="ti ti-binary position-absolute opacity-25" style="font-size: 8rem; right: -20px; top: -10px;"></i>
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <div class="text-uppercase fw-semibold" style="letter-spacing:1px; opacity: 0.9;" th:text="${response.mode == 'encrypt' ? 'Bản mã đầu ra (Ciphertext)' : 'Bản rõ đầu ra (Plaintext)'}"></div>
-                                <button class="btn btn-sm btn-light py-1 font-monospace z-1" th:data-value="${response.result}" onclick="copyToClipboard(this.dataset.value, this)">
-                                    <i class="ti ti-copy"></i> Sao chép
-                                </button>
-                            </div>
-                            <div class="fs-2 fw-bold font-monospace text-break" th:text="${response.result}"></div>
-                        </div>
-                    </div>
-
-                    <style>
-                        .aes-matrix { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; width: 100%; max-width: 200px; margin: 0 auto; }
-                        .aes-cell { width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; background: #fff; border: 1px solid #e2e8f0; border-radius: 6px; font-family: var(--bs-font-monospace); font-weight: 700; font-size: 0.85rem; transition: all 0.2s ease; }
-                        .aes-cell:hover { background: #6366f1; color: #fff; transform: scale(1.1); z-index: 10; cursor: help; }
-                        .round-badge { width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; font-size: 0.65rem; font-weight: 800; }
-                    </style>
-                    <!-- Steps Dashboard -->
-                    <div th:if="${not #lists.isEmpty(response.steps)}" class="mt-4">
-                        
-                        <!-- Interative Matrix Navigator -->
-                        <div class="card border-0 shadow-sm rounded-4 mb-4 overflow-hidden">
-                            <div class="card-header bg-white py-3 border-bottom-0 d-flex align-items-center justify-content-between">
-                                <div class="d-flex align-items-center">
-                                    <h5 class="fw-bold m-0 text-indigo"><i class="ti ti-device-analytics me-2"></i>Trình duyệt AES Micro-Flow</h5>
-                                    <button class="btn btn-sm btn-outline-success ms-3 rounded-pill px-3" id="aesAutoPlayBtn" onclick="toggleAesAutoPlay()">
-                                        <i class="ti ti-player-play me-1"></i> Auto-Play
+                            <div th:if="${not #lists.isEmpty(response.transcript)}">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h6 class="fw-bold mb-0 small text-uppercase text-muted">Bản ghi chi tiết ma trận trạng thái</h6>
+                                    <button class="btn btn-sm btn-link text-primary text-decoration-none p-0" onclick="copyTranscript()">
+                                        <i class="ti ti-copy me-1"></i>Sao chép các bước
                                     </button>
                                 </div>
-                                <div class="badge bg-indigo-subtle text-indigo px-3 rounded-pill" id="stepCounter">Vòng 1 / 11</div>
-                            </div>
-                            
-                            <!-- Status Label -->
-                            <div class="bg-indigo-subtle px-4 py-2 border-top border-bottom">
-                                <span class="small fw-bold text-indigo" id="statusLabel">Trạng thái: Đã sẵn sàng - Nhấn 'Tiếp theo' để bắt đầu</span>
-                            </div>
-
-                            <div class="card-body bg-light-subtle p-0 border-top">
-                                <div class="row g-0">
-                                    <!-- Matrices Pipeline -->
-                                    <div class="col-lg-8 p-4 bg-white border-end">
-                                        <div class="pipeline-container d-flex flex-column align-items-center" id="aesPipeline">
-                                            
-                                            <!-- Round Input -->
-                                            <div class="text-center mb-0">
-                                                <div class="small fw-bold text-muted text-uppercase mb-2">Đầu vào (Input)</div>
-                                                <div id="matrix_input" class="mx-auto"></div>
-                                            </div>
-
-                                            <div class="pipeline-line bg-indigo opacity-25" style="width: 2px; height: 30px;"></div>
-
-                                            <!-- SubBytes -->
-                                            <div class="pipeline-node p-3 border rounded-3 bg-white shadow-sm w-100 text-center mb-0" id="node_sub">
-                                                <div class="fw-bold small text-indigo text-uppercase mb-2">Bước 1: Thế byte (SUBBYTE)</div>
-                                                <div id="matrix_sub" class="mx-auto"></div>
-                                            </div>
-
-                                            <div class="pipeline-line bg-indigo opacity-25" style="width: 2px; height: 30px;"></div>
-
-                                            <!-- ShiftRows -->
-                                            <div class="pipeline-node p-3 border rounded-3 bg-white shadow-sm w-100 text-center mb-0" id="node_shift">
-                                                <div class="fw-bold small text-indigo text-uppercase mb-2">Bước 2: Dịch hàng (SHIFTROW)</div>
-                                                <div id="matrix_shift" class="mx-auto"></div>
-                                            </div>
-
-                                            <div class="pipeline-line bg-indigo opacity-25" style="width: 2px; height: 30px;" id="line_mix"></div>
-
-                                            <!-- MixColumns -->
-                                            <div class="pipeline-node p-3 border rounded-3 bg-white shadow-sm w-100 text-center mb-0" id="node_mix">
-                                                <div class="fw-bold small text-indigo text-uppercase mb-2">Bước 3: Nhân ma trận (MIXCOLUMN)</div>
-                                                <div id="matrix_mix" class="mx-auto"></div>
-                                            </div>
-
-                                            <div class="pipeline-line bg-indigo opacity-25" style="width: 2px; height: 30px;"></div>
-
-                                            <!-- AddRoundKey & Result -->
-                                            <div class="pipeline-node p-3 border rounded-3 bg-primary-subtle shadow-sm w-100 text-center mb-0" id="node_add">
-                                                <div class="fw-bold small text-primary text-uppercase mb-2">Bước 4: Cộng khóa vòng (ADDROUNDKEY)</div>
-                                                <div class="d-flex justify-content-center align-items-center gap-3 flex-wrap">
-                                                    <div class="d-flex flex-column align-items-center">
-                                                        <div class="x-small text-muted mb-1" style="font-size: 0.6rem;">Round Key</div>
-                                                        <div id="matrix_key"></div>
-                                                    </div>
-                                                    <div class="fs-4 text-primary mt-3"><i class="ti ti-plus"></i></div>
-                                                    <div class="d-flex flex-column align-items-center">
-                                                        <div class="x-small text-muted mb-1" style="font-size: 0.6rem;">Kết quả</div>
-                                                        <div id="matrix_output"></div>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                        </div>
-                                    </div>
-
-                                    <!-- Controls & Info -->
-                                    <div class="col-lg-4 p-4 bg-light-subtle d-flex flex-column">
-                                        <div class="mb-4">
-                                            <h6 class="fw-bold text-indigo font-monospace mb-2" id="stepLabel">VÒNG 1</h6>
-                                            <p class="small text-muted lh-sm mb-3" id="stepDescription">
-                                                Trình tự biến đổi dữ liệu 128-bit bên trong vòng lặp AES.
-                                            </p>
-                                            
-                                            <div class="alert alert-indigo p-2 small mb-0 rounded-3 border-0 bg-white shadow-sm">
-                                                <i class="ti ti-info-circle me-1"></i> Các ô <span class="bg-warning-subtle text-warning-emphasis px-1 rounded border border-warning">màu vàng</span> là các byte vừa được thay đổi bởi phép toán tương ứng.
-                                            </div>
-                                        </div>
-
-                                        <div class="mt-auto">
-                                            <div class="mb-3">
-                                                <label class="form-label small fw-bold text-muted text-uppercase">Tốc độ</label>
-                                                <select class="form-select form-select-sm" id="aesPlaySpeed">
-                                                    <option value="2000">Chậm (2s)</option>
-                                                    <option value="1000" selected>Thường (1s)</option>
-                                                    <option value="500">Nhanh (0.5s)</option>
-                                                </select>
-                                            </div>
-                                            <div class="d-flex gap-2">
-                                                <button class="btn btn-outline-indigo flex-grow-1" id="prevStepBtn" onclick="changeStep(-1)"><i class="ti ti-arrow-left"></i></button>
-                                                <button class="btn btn-indigo flex-grow-1 text-white fw-bold shadow-pulse" id="nextStepBtn" onclick="changeStep(1)" style="background-color: #6366f1;">TIẾP THEO <i class="ti ti-arrow-right"></i></button>
-                                            </div>
-                                            <button class="btn btn-link btn-sm w-100 mt-2 text-decoration-none text-muted" onclick="copyCurrentMatrixOutput()">
-                                                <i class="ti ti-copy me-1"></i> Sao chép kết quả vòng
-                                            </button>
-                                        </div>
-                                    </div>
+                                <div class="transcript-container" id="transcript-box">
+                                    <div th:each="line : ${response.transcript}" th:text="${line}"></div>
                                 </div>
-                            </div>
-                        </div>
-
-                        <!-- Sample Data Button -->
-                        <div class="card border-0 shadow-sm rounded-4 mb-4 bg-white">
-                            <div class="card-body d-flex align-items-center justify-content-between p-3">
-                                <div class="d-flex align-items-center">
-                                    <div class="p-2 bg-indigo-subtle text-indigo rounded-3 me-3">
-                                        <i class="ti ti-database fs-3"></i>
-                                    </div>
-                                    <div>
-                                        <div class="fw-bold text-dark">Dữ liệu thực hành AES-128</div>
-                                        <div class="small text-muted">Mẫu: Plaintext 32 hex chars, Key 32 hex chars.</div>
-                                    </div>
-                                </div>
-                                <button class="btn btn-outline-indigo fw-bold px-4 rounded-pill" onclick="loadAesSampleData()">
-                                    Sử dụng mẫu
-                                </button>
                             </div>
                         </div>
                     </div>
 
-                    <style>
-                        .grayscale-pipeline {
-                            filter: grayscale(1) opacity(0.4);
-                            pointer-events: none;
-                        }
-                        
-                        @keyframes pulse-btn-indigo {
-                            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4); }
-                            70% { transform: scale(1.02); box-shadow: 0 0 0 10px rgba(99, 102, 241, 0); }
-                            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(99, 102, 241, 0); }
-                        }
-                        
-                        .shadow-pulse {
-                            animation: pulse-btn-indigo 2s infinite;
-                        }
-                    </style>
-
-                    <script th:inline="javascript">
-                        /*<![CDATA[*/
-                        const steps = /*[[${response != null ? response.steps : {}}]]*/ [];
-                        let currentStepIdx = 0;
-                        let aesAutoPlayInterval = null;
-
-                        function buildMatrixHtml(data, binData, compareData = null) {
-                            if (!data) return '';
-                            let html = '<div class="aes-matrix shadow-sm p-1 bg-white rounded border mx-auto" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; width: fit-content; padding: 6px !important;">';
-                            data.forEach((row, rIdx) => {
-                                row.forEach((cell, cIdx) => {
-                                    let cls = 'aes-cell';
-                                    // Diff Highlighting guard (Only if index > 0)
-                                    if (currentStepIdx > 0 && compareData && cell !== compareData[rIdx][cIdx]) {
-                                        cls += ' bg-warning-subtle border-warning text-warning-emphasis fw-bold shadow-sm';
-                                    }
-                                    const title = binData ? `Nhị phân: ${binData[rIdx][cIdx]}` : '';
-                                    html += `<div class="${cls}" style="width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; font-family: monospace; border: 1px solid #e2e8f0; border-radius: 4px; font-size: 0.75rem;" title="${title}" data-bs-toggle="tooltip">${cell}</div>`;
-                                });
-                            });
-                            html += '</div>';
-                            return html;
-                        }
-
-                        function updateNavigator() {
-                            if (!steps.length) return;
-                            const step = steps[currentStepIdx];
-                            const statusLabel = document.getElementById('statusLabel');
-                            const nextBtn = document.getElementById('nextStepBtn');
-                            const pipeline = document.getElementById('aesPipeline');
-                            
-                            // 1. Reset Cinematic Effects
-                            pipeline.classList.remove('grayscale-pipeline');
-                            nextBtn.classList.remove('shadow-pulse');
-                            
-                            // 2. Handle Step 0 Logic
-                            if (currentStepIdx === 0) {
-                                statusLabel.innerText = "Trạng thái: Đã sẵn sàng - Nhấn 'Tiếp theo' để khởi tạo ma trận";
-                                pipeline.classList.add('grayscale-pipeline');
-                                nextBtn.classList.add('shadow-pulse');
-                            } else if (currentStepIdx === 1) {
-                                statusLabel.innerText = "Trạng thái: Đang thực hiện Vòng khởi tạo (AddRoundKey 0)";
-                            } else if (currentStepIdx < steps.length - 1) {
-                                statusLabel.innerText = "Trạng thái: Đang thực hiện các vòng lặp biến đổi AES";
-                            } else {
-                                statusLabel.innerText = "Trạng thái: Đã hoàn tất thuật toán AES";
-                            }
-
-                            // 3. Render the pipeline chain
-                            document.getElementById('matrix_input').innerHTML = buildMatrixHtml(step.stateStart, step.binStateStart);
-                            
-                            // SubBytes
-                            const nodeSub = document.getElementById('node_sub');
-                            if (step.stateAfterSub) {
-                                document.getElementById('matrix_sub').innerHTML = buildMatrixHtml(step.stateAfterSub, step.binStateAfterSub, step.stateStart);
-                                nodeSub.style.display = 'block';
-                            } else {
-                                nodeSub.style.display = 'none';
-                            }
-
-                            // ShiftRows
-                            const nodeShift = document.getElementById('node_shift');
-                            if (step.stateAfterShift) {
-                                const prev = step.stateAfterSub || step.stateStart;
-                                document.getElementById('matrix_shift').innerHTML = buildMatrixHtml(step.stateAfterShift, step.binStateAfterShift, prev);
-                                nodeShift.style.display = 'block';
-                            } else {
-                                nodeShift.style.display = 'none';
-                            }
-
-                            // MixColumns
-                            const nodeMix = document.getElementById('node_mix');
-                            const lineMix = document.getElementById('line_mix');
-                            if (step.stateAfterMix) {
-                                document.getElementById('matrix_mix').innerHTML = buildMatrixHtml(step.stateAfterMix, step.binStateAfterMix, step.stateAfterShift);
-                                nodeMix.style.display = 'block';
-                                lineMix.style.display = 'block';
-                            } else {
-                                nodeMix.style.display = 'none';
-                                lineMix.style.display = 'none';
-                            }
-
-                            // AddRoundKey
-                            const nodeAdd = document.getElementById('node_add');
-                            if (step.roundKey) {
-                                const prevForAdd = step.stateAfterMix || step.stateAfterShift || step.stateStart;
-                                document.getElementById('matrix_key').innerHTML = buildMatrixHtml(step.roundKey, step.binRoundKey);
-                                document.getElementById('matrix_output').innerHTML = buildMatrixHtml(step.stateAfterAdd, step.binStateAfterAdd, prevForAdd);
-                                nodeAdd.style.display = 'block';
-                            } else {
-                                nodeAdd.style.display = 'none';
-                            }
-
-                            // Metadata
-                            document.getElementById('stepCounter').innerText = `Bước ${currentStepIdx + 1} / ${steps.length}`;
-                            document.getElementById('stepLabel').innerText = step.name.toUpperCase();
-                            
-                            // Description
-                            const desc = document.getElementById('stepDescription');
-                            if (step.name.includes("BẢN RÕ") || step.name.includes("BẢN MÃ")) {
-                                desc.innerText = "Dữ liệu đã được nạp vào ma trận trạng thái. Chưa có phép toán nào được thực hiện.";
-                            } else if (step.name.includes("KHỞI TẠO")) {
-                                desc.innerText = "Thực hiện phép XOR đầu tiên với khóa vòng (AddRoundKey 0).";
-                            } else if (step.name.includes("CUỐI")) {
-                                desc.innerText = "Vòng lặp cuối cùng của thuật toán AES (không có bước MixColumn).";
-                            } else {
-                                desc.innerText = `Toàn bộ các phép biến đổi của vòng ${step.roundNumber}. Dữ liệu đi qua hộp thế S-box, dịch hàng, nhân ma trận và cộng khóa vòng tương ứng.`;
-                            }
-
-                            // Tooltips
-                            const tooltips = document.querySelectorAll('[data-bs-toggle="tooltip"]');
-                            tooltips.forEach(t => new bootstrap.Tooltip(t));
-                            
-                            document.getElementById('prevStepBtn').disabled = (currentStepIdx === 0);
-                            document.getElementById('nextStepBtn').disabled = (currentStepIdx === steps.length - 1);
-                            document.getElementById('prevStepBtn').style.opacity = (currentStepIdx === 0) ? '0.3' : '1';
-                        }
-
-                        function changeStep(delta) {
-                            currentStepIdx = Math.max(0, Math.min(steps.length - 1, currentStepIdx + delta));
-                            updateNavigator();
-                        }
-
-                        function toggleAesAutoPlay() {
-                            const btn = document.getElementById('aesAutoPlayBtn');
-                            if (aesAutoPlayInterval) {
-                                clearInterval(aesAutoPlayInterval);
-                                aesAutoPlayInterval = null;
-                                btn.innerHTML = '<i class="ti ti-player-play me-1"></i> Auto-Play';
-                                btn.className = 'btn btn-sm btn-outline-success ms-3 rounded-pill px-3';
-                            } else {
-                                const speed = parseInt(document.getElementById('aesPlaySpeed').value);
-                                aesAutoPlayInterval = setInterval(() => {
-                                    if (currentStepIdx < steps.length - 1) {
-                                        changeStep(1);
-                                    } else {
-                                        toggleAesAutoPlay();
-                                    }
-                                }, speed);
-                                btn.innerHTML = '<i class="ti ti-player-pause me-1"></i> Pause';
-                                btn.className = 'btn btn-sm btn-success ms-3 rounded-pill px-3';
-                            }
-                        }
-
-                        function loadAesSampleData() {
-                            document.querySelector('input[name="data"]').value = "0123456789ABCDEFFEDCBA9876543210";
-                            document.querySelector('input[name="key"]').value = "0F1571C947D9E8590CB7ADD6AF7F6798";
-                            document.getElementById('mode-enc-aes').checked = true;
-                            alert("Đã nạp dữ liệu thực hành AES chuẩn. Nhấn 'Thực thi AES' để xem.");
-                        }
-
-                        function copyCurrentMatrixOutput() {
-                            let text = "";
-                            const step = steps[currentStepIdx];
-                            const data = step.stateAfterAdd || step.stateStart;
-                            data.forEach(row => {
-                                text += row.join(' ') + '\n';
-                            });
-                            navigator.clipboard.writeText(text.trim());
-                            alert('Đã sao chép ma trận kết quả vòng!');
-                        }
-
-                        document.addEventListener('DOMContentLoaded', () => {
-                            if (steps.length > 0) updateNavigator();
-                        });
-                        /*]]>*/
-                    </script>
+                    <div th:if="${response == null}" class="py-5 text-center text-muted">
+                        <i class="ti ti-binary text-light mb-3 d-block" style="font-size: 3rem;"></i>
+                        Nhập dữ liệu Hex 128-bit và nhấn Thực thi để xem quy trình của AES.
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-</main>
+    </main>
 
-<script src="/js/script.js"></script>
+    <script>
+        function useSampleData() {
+            document.getElementById('inputData').value = 'B104AADD3AC293DF787EFD2CF8065925';
+            document.getElementById('inputKey').value = 'C281B1763B140EF7AB12EB2745F1F59F';
+            document.getElementById('mode-enc').checked = true;
+        }
+
+        function copyTranscript() {
+            const box = document.getElementById('transcript-box');
+            if (box) {
+                const text = box.innerText;
+                navigator.clipboard.writeText(text);
+                alert('Đã sao chép các bước thực hiện!');
+            }
+        }
+    </script>
 </body>
+
 </html>

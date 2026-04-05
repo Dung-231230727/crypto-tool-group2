@@ -10,7 +10,14 @@ public class ModuloResponse {
     private boolean hasInverse;
     private String message;
     private List<EuclideanStep> table;
+    private List<String> transcript;
+    private String selectedMethod;
     private String errorMessage;
+
+    public String getSelectedMethod() { return selectedMethod; }
+    public void setSelectedMethod(String selectedMethod) { this.selectedMethod = selectedMethod; }
+    public List<String> getTranscript() { return transcript; }
+    public void setTranscript(List<String> transcript) { this.transcript = transcript; }
 
     public long getAVal() { return aVal; }
     public void setAVal(long aVal) { this.aVal = aVal; }

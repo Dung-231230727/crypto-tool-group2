@@ -12,9 +12,13 @@ public class RsaService {
 
     public RsaResponse process(RsaRequest request) {
         RsaResponse response = new RsaResponse();
-        List<String> steps = new ArrayList<>();
+        List<String> transcript = new ArrayList<>();
+
+        transcript.add("THUẬT TOÁN MÃ HÓA RSA");
+        transcript.add("");
 
         BigInteger p, q, e;
+        // ... (rest of parsing logic remains same)
         try {
             p = new BigInteger(request.getP().trim());
             q = new BigInteger(request.getQ().trim());
@@ -37,12 +41,12 @@ public class RsaService {
         // Step 1: n = p * q
         BigInteger n = p.multiply(q);
         response.setN(n.toString());
-        steps.add("Bước 1: n = p × q = " + p + " × " + q + " = " + n);
+        transcript.add("Bước 1: n = p × q = " + p + " × " + q + " = " + n);
 
         // Step 2: phi(n) = (p-1)(q-1)
         BigInteger phi = p.subtract(BigInteger.ONE).multiply(q.subtract(BigInteger.ONE));
         response.setPhi(phi.toString());
-        steps.add("Bước 2: φ(n) = (p−1)(q−1) = " + p.subtract(BigInteger.ONE)
+        transcript.add("Bước 2: φ(n) = (p−1)(q−1) = " + p.subtract(BigInteger.ONE)
                 + " × " + q.subtract(BigInteger.ONE) + " = " + phi);
 
         // Step 3: Validate e
@@ -56,21 +60,21 @@ public class RsaService {
                     + e + ", " + phi + ") = " + gcdEPhi + " ≠ 1");
             return response;
         }
-        steps.add("Bước 3: Kiểm tra e = " + e + ": gcd(" + e + ", " + phi + ") = 1  ✓ (hợp lệ)");
+        transcript.add("Bước 3: Kiểm tra e = " + e + ": gcd(" + e + ", " + phi + ") = 1  ✓ (hợp lệ)");
 
         // Step 4: d = e^(-1) mod phi
         BigInteger d = e.modInverse(phi);
         response.setE(e.toString());
         response.setD(d.toString());
-        steps.add("Bước 4: d = e⁻¹ mod φ(n) = " + e + "⁻¹ mod " + phi + " = " + d);
-        steps.add("        Kiểm tra: e × d mod φ(n) = " + e + " × " + d
+        transcript.add("Bước 4: d = e⁻¹ mod φ(n) = " + e + "⁻¹ mod " + phi + " = " + d);
+        transcript.add("        Kiểm tra: e × d mod φ(n) = " + e + " × " + d
                 + " mod " + phi + " = " + e.multiply(d).mod(phi) + "  ✓");
 
         // Step 5: Keys
         response.setPublicKey("PU = {e = " + e + ",  n = " + n + "}");
         response.setPrivateKey("PR = {d = " + d + ",  n = " + n + "}");
-        steps.add("Bước 5: Khóa công khai  PU = {e=" + e + ", n=" + n + "}");
-        steps.add("        Khóa bí mật    PR = {d=" + d + ", n=" + n + "}");
+        transcript.add("Bước 5: Khóa công khai  PU = {e=" + e + ", n=" + n + "}");
+        transcript.add("        Khóa bí mật    PR = {d=" + d + ", n=" + n + "}");
 
         // Step 6: Encrypt
         String msgStr = request.getMessage();
@@ -88,18 +92,18 @@ public class RsaService {
             }
             BigInteger C = M.modPow(e, n);
             response.setCiphertext(C.toString());
-            steps.add("Bước 6: Mã hóa:  C = Mᵉ mod n = " + M + "^" + e + " mod " + n + " = " + C);
+            transcript.add("Bước 6: Mã hóa:  C = Mᵉ mod n = " + M + "^" + e + " mod " + n + " = " + C);
 
             // Step 7: Decrypt
             BigInteger Mprime = C.modPow(d, n);
             response.setPlaintext(Mprime.toString());
-            steps.add("Bước 7: Giải mã: M' = Cᵈ mod n = " + C + "^" + d + " mod " + n + " = " + Mprime);
+            transcript.add("Bước 7: Giải mã: M' = Cᵈ mod n = " + C + "^" + d + " mod " + n + " = " + Mprime);
             if (Mprime.equals(M)) {
-                steps.add("✓ Kết quả: M' = M = " + M + "  → Thành công!");
+                transcript.add("✓ Kết quả: M' = M = " + M + "  → Thành công!");
             }
         }
 
-        response.setSteps(steps);
+        response.setTranscript(transcript);
         return response;
     }
 }

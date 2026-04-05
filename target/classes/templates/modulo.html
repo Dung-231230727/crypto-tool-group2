@@ -3,185 +3,146 @@
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Nghịch đảo Modulo – Crypto Tool</title>
+    <title>Nghịch đảo Modulo – Nhóm 2</title>
     <link rel="stylesheet" href="/css/theme.css"/>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css"/>
-    <style>
-        .sidebar { width: 280px; min-height: 100vh; background: #fff; border-right: 1px solid #e2e8f0; }
-        .main-content { flex: 1; min-height: 100vh; background: #f8f9fa; overflow-y: auto; }
-        .nav-link { color: #4b5563; font-weight: 500; border-radius: 8px; margin-bottom: 4px; padding: 10px 16px; }
-        .nav-link:hover { background: #f1f5f9; color: #1e293b; }
-        .nav-link.active { background: var(--bs-primary-bg-subtle) !important; color: var(--bs-primary) !important; font-weight: 600; }
-        .table th { background: #f1f5f9 !important; text-transform: uppercase; font-size: 0.8rem; font-weight: 700; color: #475569; }
-        .step-highlight { background-color: var(--bs-success-bg-subtle) !important; font-weight: 600; }
-    </style>
 </head>
 <body class="d-flex flex-nowrap" style="height: 100vh; overflow: hidden;">
 
-<!-- Sidebar -->
-<aside class="sidebar d-flex flex-column flex-shrink-0 p-4 shadow-sm z-3">
-    <a href="/" class="d-flex align-items-center mb-1 text-decoration-none text-dark">
-        <i class="ti ti-shield-check fs-2 text-primary me-2"></i>
-        <span class="fs-4 fw-bold">Crypto Tool</span>
-    </a>
-    <div class="text-muted small text-uppercase fw-semibold mb-4 ms-1" style="letter-spacing:1px">Mật mã học - Nhóm 2</div>
-    
-    <ul class="nav nav-pills flex-column mb-auto">
-        <li class="nav-item">
-            <a href="/" class="nav-link d-flex align-items-center">
-                <i class="ti ti-layout-dashboard fs-4 me-3"></i> Trang chủ
-            </a>
-        </li>
-        <li class="mt-4 mb-2 ms-3 text-muted small fw-bold text-uppercase" style="letter-spacing:1px">Công cụ</li>
-        <li class="nav-item">
-            <a href="/vigenere" class="nav-link d-flex align-items-center">
-                <i class="ti ti-key fs-4 me-3"></i> Mã Vigenere
-            </a>
-        </li>
-        <li class="nav-item">
-            <a href="/modulo" class="nav-link active d-flex align-items-center">
-                <i class="ti ti-math-function fs-4 me-3"></i> Nghịch đảo Modulo
-            </a>
-        </li>
-        <li class="nav-item">
-            <a href="/des" class="nav-link d-flex align-items-center">
-                <i class="ti ti-lock fs-4 me-3"></i> Thuật toán DES
-            </a>
-        </li>
-        <li class="nav-item">
-            <a href="/aes" class="nav-link d-flex align-items-center">
-                <i class="ti ti-binary fs-4 me-3"></i> Thuật toán AES
-            </a>
-        </li>
-        <li class="nav-item">
-            <a href="/rsa" class="nav-link d-flex align-items-center">
-                <i class="ti ti-lock-square-rounded fs-4 me-3"></i> Thuật toán RSA
-            </a>
-        </li>
-    </ul>
-</aside>
+<aside th:replace="~{fragments/sidebar :: sidebar}"></aside>
 
-<!-- Main content -->
 <main class="main-content">
     <div class="p-4 p-lg-5">
-        
-        <div class="d-flex align-items-center justify-content-between mb-2">
+        <div class="d-flex align-items-center justify-content-between mb-4">
             <div>
-                <span class="badge bg-success-subtle text-success py-1 px-3 mb-2 rounded-pill font-monospace"><i class="ti ti-math-function"></i> Toán học Modulo</span>
-                <h2 class="fw-bold mb-1">Nghịch đảo Modulo</h2>
-                <p class="text-muted mb-0">Tìm khoảng nghịch nhân trên vành số kết hợp thuật toán Euclid mở rộng.</p>
+                <span class="badge-custom mb-2 d-inline-block">Số học Modulo</span>
+                <h2 class="fw-bold mb-1">Tìm Số nghịch đảo Modulo</h2>
+                <p class="text-muted mb-0">Tìm số a⁻¹ sao cho a * a⁻¹ ≡ 1 (mod n) sử dụng thuật toán Euclid mở rộng.</p>
             </div>
         </div>
-        
-        <div class="alert flex-row border border-info bg-info-subtle text-info-emphasis d-flex align-items-center rounded-3 mb-4 py-2 px-3" role="alert" style="width: fit-content">
-            <i class="ti ti-info-circle fs-4 me-2"></i>
-            <span><strong>Kiến thức:</strong> Tồn tại nghịch đảo mod n khi và chỉ khi <strong>gcd(a, n) = 1</strong>.</span>
-        </div>
 
-        <div class="row g-4 mb-4">
-            <!-- Form -->
+        <div class="row g-4">
             <div class="col-xl-4 col-lg-5">
-                <div class="card shadow-sm border-0 rounded-4">
-                    <div class="card-header bg-white border-bottom-0 pt-4 pb-0">
-                        <h5 class="card-title fw-bold m-0"><i class="ti ti-settings text-success me-2"></i>Thông số đầu vào</h5>
-                    </div>
+                <div class="card card-crypto">
                     <div class="card-body p-4">
-                        <form id="modulo-form" th:action="@{/modulo}" th:object="${request}" method="post">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h5 class="fw-bold mb-0">Tham số</h5>
+                            <button type="button" class="btn btn-sm btn-link text-primary text-decoration-none fw-bold p-0" onclick="useSampleData()">
+                                <i class="ti ti-magic-wand me-1"></i>Dữ liệu mẫu
+                            </button>
+                        </div>
+                        
+                        <form th:action="@{/modulo}" th:object="${request}" method="post">
+                            <div class="mb-3">
+                                <label class="form-label small fw-bold text-muted">Số nguyên a</label>
+                                <input type="number" class="form-control font-monospace" th:field="*{a}" id="inputA" placeholder="3" required/>
+                            </div>
+                            <div class="mb-4">
+                                <label class="form-label small fw-bold text-muted">Mô-đun n</label>
+                                <input type="number" class="form-control font-monospace" th:field="*{n}" id="inputN" placeholder="11" required/>
+                            </div>
                             
                             <div class="mb-4">
-                                <label class="form-label fw-semibold" for="mod-a">Giá trị a <span class="text-danger">*</span></label>
-                                <input id="mod-a" type="number" class="form-control" th:field="*{a}" placeholder="Nhập cơ số a..." min="1"/>
-                                <div class="form-text">Số nguyên cần tìm nghịch đảo.</div>
+                                <label class="form-label small fw-bold text-uppercase text-muted">Phương pháp</label>
+                                <div class="btn-group w-100">
+                                    <input type="radio" class="btn-check" th:field="*{method}" value="euclidean" id="method-euc" checked>
+                                    <label class="btn btn-outline-primary" for="method-euc">Euclid mở rộng</label>
+                                    <input type="radio" class="btn-check" th:field="*{method}" value="brute" id="method-brute">
+                                    <label class="btn btn-outline-primary" for="method-brute">Vét cạn (Định nghĩa)</label>
+                                </div>
                             </div>
 
-                            <div class="mb-4">
-                                <label class="form-label fw-semibold" for="mod-n">Modulo n <span class="text-danger">*</span></label>
-                                <input id="mod-n" type="number" class="form-control" th:field="*{n}" placeholder="Nhập n..." min="2"/>
-                                <div class="form-text">Hệ số modulo, yêu cầu n > 1.</div>
-                            </div>
-
-                            <hr class="my-4">
-                            <div class="d-grid gap-2">
-                                <button type="submit" class="btn btn-success py-2 fw-semibold"><i class="ti ti-search me-2"></i>Tìm nghịch đảo</button>
-                                <a href="/modulo" class="btn btn-light text-muted py-2">Xóa form</a>
-                            </div>
+                            <button type="submit" class="btn btn-primary-custom w-100 py-2">Thực thi</button>
                         </form>
                     </div>
                 </div>
             </div>
 
-            <!-- Result -->
             <div class="col-xl-8 col-lg-7">
-                
-                <!-- Error Alert -->
-                <div th:if="${response != null and response.errorMessage != null}" class="alert alert-danger d-flex align-items-center rounded-3 mb-4" role="alert">
-                    <i class="ti ti-alert-triangle fs-3 me-3"></i>
-                    <div><span class="fw-bold">Lỗi:</span> <span th:text="${response.errorMessage}"></span></div>
-                </div>
-
-                <div th:if="${response != null and response.table != null}">
-                    
-                    <div th:if="${!response.hasInverse}" class="alert alert-danger d-flex align-items-center rounded-3 mb-4" role="alert">
-                        <i class="ti ti-circle-x fs-3 me-3"></i>
-                        <span th:text="${response.message}"></span>
+                <div th:if="${response != null}">
+                    <!-- Error Message -->
+                    <div th:if="${response.errorMessage != null}" class="alert alert-danger border-0 shadow-sm mb-4">
+                        <i class="ti ti-alert-circle me-2"></i> <span th:text="${response.errorMessage}"></span>
                     </div>
 
-                    <!-- Result Box -->
-                    <div th:if="${response.hasInverse}" class="card bg-success text-white border-0 shadow-sm rounded-4 mb-4">
-                        <div class="card-body p-4 position-relative overflow-hidden">
-                            <i class="ti ti-check position-absolute opacity-25" style="font-size: 8rem; right: -20px; top: -10px;"></i>
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <div class="text-uppercase fw-semibold" style="letter-spacing:1px; opacity: 0.9;">Kết quả</div>
+                    <!-- Result Section -->
+                    <div th:if="${response.hasInverse or response.message != null}">
+                        <div class="card card-crypto mb-4 border-primary shadow-sm" th:classappend="${!response.hasInverse ? 'border-danger' : ''}">
+                            <div class="card-body p-4">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="small fw-bold text-uppercase text-muted">Kết quả</span>
+                                    <button th:if="${response.hasInverse}" class="btn btn-sm btn-outline-secondary rounded-pill" th:data-value="${response.inverse}" onclick="navigator.clipboard.writeText(this.dataset.value)">Sao chép</button>
+                                </div>
+                                <div class="fs-2 fw-bold font-monospace text-primary text-break" th:text="${response.message}"></div>
+                                <div th:if="${response.hasInverse}" class="mt-2 text-muted small">
+                                    GCD(a, n) = <span th:text="${response.gcd}"></span>
+                                </div>
                             </div>
-                            <div class="fs-2 fw-bold font-monospace" th:text="|${response.aVal}⁻¹ mod ${response.nVal} = ${response.inverse}|"></div>
-                            <div class="mt-2 text-white-50 font-monospace" th:text="${response.message}"></div>
                         </div>
-                    </div>
 
-                    <!-- Steps Table -->
-                    <div class="card shadow-sm border-0 rounded-4">
-                        <div class="card-header bg-white border-bottom-0 pb-0 pt-4">
-                            <h5 class="card-title fw-bold mb-1"><i class="ti ti-table text-success me-2"></i>Bảng Euclid mở rộng</h5>
-                            <p class="text-muted small mb-0">Ràng buộc phương trình <span class="font-monospace fw-semibold">a·y + n·x = gcd(a,n)</span>. Nếu gcd = 1, nghịch đảo <span class="font-monospace fw-semibold">x = y</span></p>
+                        <div th:if="${not #lists.isEmpty(response.transcript)}">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h6 class="fw-bold mb-0 small text-uppercase text-muted">Quy trình thực hiện</h6>
+                                <button class="btn btn-sm btn-link text-primary text-decoration-none p-0" onclick="copyTranscript()">
+                                    <i class="ti ti-copy me-1"></i>Sao chép các bước
+                                </button>
+                            </div>
+                            <div class="transcript-container" id="transcript-box">
+                                <div th:each="line : ${response.transcript}" th:text="${line}"></div>
+                            </div>
                         </div>
-                        <div class="card-body p-4">
-                            <div class="table-responsive rounded border">
-                                <table class="table table-hover table-striped mb-0 text-center align-middle font-monospace" style="font-size: 0.95rem;">
-                                    <thead class="table-light">
+
+                        <div th:if="${not #lists.isEmpty(response.table)}">
+                            <h6 class="fw-bold mb-3 small text-uppercase text-muted">Bảng tính toán chi tiết</h6>
+                            <div class="table-responsive">
+                                <table class="table table-sm table-bordered font-monospace small">
+                                    <thead class="bg-light">
                                         <tr>
-                                            <th>Bước (i)</th>
-                                            <th>Thương qᵢ</th>
-                                            <th>Số dư rᵢ</th>
-                                            <th>H.số xᵢ (của n)</th>
-                                            <th>H.số yᵢ (của a)</th>
+                                            <th>Bước</th>
+                                            <th>q</th>
+                                            <th>r</th>
+                                            <th>x</th>
+                                            <th>y</th>
                                         </tr>
                                     </thead>
-                                    <tbody class="border-top-0">
-                                        <tr th:each="row, stat : ${response.table}" th:classappend="${stat.last and response.hasInverse} ? 'step-highlight text-success' : ''">
-                                            <td class="text-muted" th:text="${row.step}"></td>
-                                            <td th:text="${row.q}"></td>
-                                            <td class="fw-bold" th:text="${row.r}"></td>
-                                            <td th:text="${row.x}"></td>
-                                            <td class="fw-bold" th:classappend="${stat.last and response.hasInverse} ? 'text-success' : ''" th:text="${row.y}"></td>
+                                    <tbody>
+                                        <tr th:each="step : ${response.table}">
+                                            <td th:text="${step.step}"></td>
+                                            <td th:text="${step.q}"></td>
+                                            <td th:text="${step.r}"></td>
+                                            <td th:text="${step.x}"></td>
+                                            <td th:text="${step.y}"></td>
                                         </tr>
                                     </tbody>
                                 </table>
                             </div>
-
-                            <div th:if="${response.hasInverse && response.table[response.table.size()-1].y < 0}" class="alert bg-success-subtle text-success border-success-subtle mt-4 mb-0 font-monospace">
-                                <strong>Lưu ý:</strong> Vì <span class="fw-bold">y = <span th:text="${response.table[response.table.size()-1].y}"></span> < 0</span>, nghịch đảo được tính bằng: 
-                                <span th:text="${response.table[response.table.size()-1].y}"></span> + <span th:text="${response.nVal}"></span> = <strong><span th:text="${response.inverse}"></span></strong>
-                            </div>
                         </div>
                     </div>
-
+                </div>
+                
+                <div th:if="${response == null}" class="py-5 text-center text-muted">
+                    <i class="ti ti-math text-light mb-3 d-block" style="font-size: 3rem;"></i>
+                    Nhập a và n để tìm số nghịch đảo bằng thuật toán Euclid mở rộng.
                 </div>
             </div>
         </div>
-
     </div>
 </main>
 
-<script src="/js/script.js"></script>
+<script>
+    function useSampleData() {
+        document.getElementById('inputA').value = '3';
+        document.getElementById('inputN').value = '11';
+    }
+
+    function copyTranscript() {
+        const box = document.getElementById('transcript-box');
+        if (box) {
+            const text = box.innerText;
+            navigator.clipboard.writeText(text);
+            alert('Đã sao chép các bước thực hiện!');
+        }
+    }
+</script>
 </body>
 </html>

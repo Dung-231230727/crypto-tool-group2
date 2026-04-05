@@ -4,169 +4,73 @@
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Crypto Tool – Nhóm 2</title>
-    <!-- Dasher Theme CSS -->
     <link rel="stylesheet" href="/css/theme.css"/>
-    <!-- Tabler Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css"/>
-    <style>
-        .sidebar { width: 280px; min-height: 100vh; background: #fff; border-right: 1px solid #e2e8f0; }
-        .main-content { flex: 1; min-height: 100vh; background: #f8f9fa; overflow-y: auto; }
-        .nav-link { color: #4b5563; font-weight: 500; border-radius: 8px; margin-bottom: 4px; padding: 10px 16px; }
-        .nav-link:hover { background: #f1f5f9; color: #1e293b; }
-        .nav-link.active { background: var(--bs-primary-bg-subtle) !important; color: var(--bs-primary) !important; font-weight: 600; }
-        .hero { background: linear-gradient(135deg, var(--bs-primary-bg-subtle) 0%, #e0e7ff 100%); border-radius: 16px; }
-        .feature-card:hover { transform: translateY(-3px); transition: .3s; border-color: var(--bs-primary) !important; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
-    </style>
 </head>
 <body class="d-flex flex-nowrap" style="height: 100vh; overflow: hidden;">
 
-<!-- Sidebar -->
-<aside class="sidebar d-flex flex-column flex-shrink-0 p-4 shadow-sm z-3">
-    <a href="/" class="d-flex align-items-center mb-1 text-decoration-none text-dark">
-        <i class="ti ti-shield-check fs-2 text-primary me-2"></i>
-        <span class="fs-4 fw-bold">Crypto Tool</span>
-    </a>
-    <div class="text-muted small text-uppercase fw-semibold mb-4 ms-1" style="letter-spacing:1px">Mật mã học - Nhóm 2</div>
-    
-    <ul class="nav nav-pills flex-column mb-auto">
-        <li class="nav-item">
-            <a href="/" class="nav-link d-flex align-items-center">
-                <i class="ti ti-layout-dashboard fs-4 me-3"></i> Trang chủ
-            </a>
-        </li>
-        <li class="mt-4 mb-2 ms-3 text-muted small fw-bold text-uppercase" style="letter-spacing:1px">Công cụ</li>
-        <li class="nav-item">
-            <a href="/vigenere" class="nav-link d-flex align-items-center">
-                <i class="ti ti-key fs-4 me-3"></i> Mã Vigenere
-            </a>
-        </li>
-        <li class="nav-item">
-            <a href="/modulo" class="nav-link d-flex align-items-center">
-                <i class="ti ti-math-function fs-4 me-3"></i> Nghịch đảo Modulo
-            </a>
-        </li>
-        <li class="nav-item">
-            <a href="/des" class="nav-link d-flex align-items-center">
-                <i class="ti ti-lock fs-4 me-3"></i> Thuật toán DES
-            </a>
-        </li>
-        <li class="nav-item">
-            <a href="/aes" class="nav-link d-flex align-items-center">
-                <i class="ti ti-binary fs-4 me-3"></i> Thuật toán AES
-            </a>
-        </li>
-        <li class="nav-item">
-            <a href="/rsa" class="nav-link d-flex align-items-center">
-                <i class="ti ti-lock-square-rounded fs-4 me-3"></i> Thuật toán RSA
-            </a>
-        </li>
-    </ul>
-</aside>
+<!-- Sidebar Fragment -->
+<aside th:replace="~{fragments/sidebar :: sidebar}"></aside>
 
 <!-- Main content -->
 <main class="main-content">
     <div class="p-4 p-lg-5">
         
         <!-- Hero Section -->
-        <div class="hero p-5 mb-5 border shadow-sm position-relative overflow-hidden">
-            <i class="ti ti-lock-access text-primary opacity-25 position-absolute" style="font-size: 14rem; top: -30px; right: -20px;"></i>
-            <span class="badge bg-primary text-white text-uppercase py-2 px-3 fw-bold mb-3 rounded-pill" style="letter-spacing:.5px;">Đồ án Nhóm 2</span>
+        <div class="bg-white p-5 mb-5 rounded-4 border shadow-sm">
+            <span class="badge-custom mb-3 d-inline-block">Đồ án Nhóm 2</span>
             <h1 class="display-6 fw-bold text-dark lh-sm mb-3">Công cụ Tra cứu &<br>Giải mã Thuật toán</h1>
-            <p class="lead text-muted" style="max-width: 600px;">
-                Hệ thống hỗ trợ tính toán, mã hóa và giải mã với giao diện trực quan. Hiển thị từng bước thực hiện chi tiết phục vụ cho học tập và kiểm tra mô phỏng.
+            <p class="lead text-muted mb-0" style="max-width: 650px;">
+                Hệ thống hỗ trợ tính toán, mã hóa và giải mã với giao diện học thuật tối giản. 
+                Tập trung vào việc hiển thị quy trình thực hiện chi tiết cho từng thuật toán phổ biến.
             </p>
         </div>
 
-        <!-- Dashboard Cards (Dasher style) -->
-        <div class="row g-4 row-cols-1 row-cols-md-2 row-cols-xl-3">
+        <!-- Dashboard Cards -->
+        <div class="row g-4">
             
             <!-- Vigenere -->
-            <div class="col">
-                <div class="card h-100 shadow-sm feature-card border bg-white rounded-4 overflow-hidden">
-                    <div class="card-body p-4 d-flex flex-column">
-                        <div class="d-flex align-items-center mb-3">
-                            <div class="icon-shape icon-lg rounded-circle bg-primary-subtle text-primary border border-primary-subtle border-2">
-                                <i class="ti ti-key fs-3"></i>
-                            </div>
-                            <h4 class="card-title mb-0 ms-3 fw-bold">Mã Vigenere</h4>
-                        </div>
-                        <p class="card-text text-muted mb-4 small flex-grow-1">Hỗ trợ mã hóa và giải mã bản rõ với hai chế độ <span class="fw-semibold text-dark">Lặp khóa</span> và <span class="fw-semibold text-dark">Autokey</span> trên bảng chữ cái A-Z.</p>
-                        <a href="/vigenere" class="btn btn-outline-primary d-flex align-items-center justify-content-center fw-semibold rounded-pill py-2">
-                            Mở công cụ <i class="ti ti-arrow-right ms-2"></i>
-                        </a>
-                    </div>
+            <div class="col-xl-4 col-md-6">
+                <div class="card card-crypto h-100 p-4">
+                    <h5 class="fw-bold mb-3">Mã Vigenere</h5>
+                    <p class="text-muted small mb-4 flex-grow-1">Hệ mã thay thế đa ký tự trên bảng chữ cái Latinh. Hỗ trợ chế độ Lặp khóa và Tự động khóa (Autokey).</p>
+                    <a href="/vigenere" class="btn btn-primary-custom w-100">Khám phá</a>
                 </div>
             </div>
 
             <!-- Modulo -->
-            <div class="col">
-                <div class="card h-100 shadow-sm feature-card border bg-white rounded-4 overflow-hidden">
-                    <div class="card-body p-4 d-flex flex-column">
-                        <div class="d-flex align-items-center mb-3">
-                            <div class="icon-shape icon-lg rounded-circle bg-success-subtle text-success border border-success-subtle border-2">
-                                <i class="ti ti-math-function fs-3"></i>
-                            </div>
-                            <h4 class="card-title mb-0 ms-3 fw-bold">Nghịch đảo Modulo</h4>
-                        </div>
-                        <p class="card-text text-muted mb-4 small flex-grow-1">Tìm khoảng nghịch nhân trên vành số <span class="fw-semibold text-dark">a⁻¹ (mod n)</span> áp dụng <span class="fw-semibold text-dark">Thuật toán Euclid mở rộng</span> kèm bảng chi tiết.</p>
-                        <a href="/modulo" class="btn btn-outline-success d-flex align-items-center justify-content-center fw-semibold rounded-pill py-2">
-                            Mở công cụ <i class="ti ti-arrow-right ms-2"></i>
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-            <!-- RSA -->
-            <div class="col">
-                <div class="card h-100 shadow-sm feature-card border bg-white rounded-4 overflow-hidden">
-                    <div class="card-body p-4 d-flex flex-column">
-                        <div class="d-flex align-items-center mb-3">
-                            <div class="icon-shape icon-lg rounded-circle bg-warning-subtle text-warning border border-warning-subtle border-2">
-                                <i class="ti ti-lock-square-rounded fs-3"></i>
-                            </div>
-                            <h4 class="card-title mb-0 ms-3 fw-bold">Thuật toán RSA</h4>
-                        </div>
-                        <p class="card-text text-muted mb-4 small flex-grow-1">Tính toán cặp khóa <span class="fw-semibold text-dark">Public/Private key</span> kết hợp mã hóa <span class="fw-semibold text-dark">Mᵉ mod n</span> sử dụng BigInteger tiêu chuẩn.</p>
-                        <a href="/rsa" class="btn btn-outline-warning d-flex align-items-center justify-content-center fw-semibold rounded-pill py-2">
-                            Mở công cụ <i class="ti ti-arrow-right ms-2"></i>
-                        </a>
-                    </div>
+            <div class="col-xl-4 col-md-6">
+                <div class="card card-crypto h-100 p-4">
+                    <h5 class="fw-bold mb-3">Nghịch đảo Modulo</h5>
+                    <p class="text-muted small mb-4 flex-grow-1">Tìm số nghịch đảo a⁻¹ mod n sử dụng thuật toán Euclid mở rộng. Hiển thị bảng tính toán chi tiết từng bước.</p>
+                    <a href="/modulo" class="btn btn-primary-custom w-100">Khám phá</a>
                 </div>
             </div>
 
             <!-- DES -->
-            <div class="col">
-                <div class="card h-100 shadow-sm feature-card border bg-white rounded-4 overflow-hidden">
-                    <div class="card-body p-4 d-flex flex-column">
-                        <div class="d-flex align-items-center mb-3">
-                            <div class="icon-shape icon-lg rounded-circle bg-primary-subtle text-primary border border-primary-subtle border-2">
-                                <i class="ti ti-lock fs-3"></i>
-                            </div>
-                            <h4 class="card-title mb-0 ms-3 fw-bold">Thuật toán DES</h4>
-                        </div>
-                        <p class="card-text text-muted mb-4 small flex-grow-1">Mã hóa khối đối xứng <span class="fw-semibold text-dark">64-bit</span> với khóa 64-bit sử dụng cấu trúc Feistel tiêu chuẩn.</p>
-                        <a href="/des" class="btn btn-outline-primary d-flex align-items-center justify-content-center fw-semibold rounded-pill py-2">
-                            Mở công cụ <i class="ti ti-arrow-right ms-2"></i>
-                        </a>
-                    </div>
+            <div class="col-xl-4 col-md-6">
+                <div class="card card-crypto h-100 p-4">
+                    <h5 class="fw-bold mb-3">Thuật toán DES</h5>
+                    <p class="text-muted small mb-4 flex-grow-1">Data Encryption Standard - Hệ mã hóa khối 64-bit cổ điển dựa trên mạng Feistel và 16 vòng biến đổi.</p>
+                    <a href="/des" class="btn btn-primary-custom w-100">Khám phá</a>
                 </div>
             </div>
 
             <!-- AES -->
-            <div class="col">
-                <div class="card h-100 shadow-sm feature-card border bg-white rounded-4 overflow-hidden" style="border-left: 4px solid #6366f1 !important;">
-                    <div class="card-body p-4 d-flex flex-column">
-                        <div class="d-flex align-items-center mb-3">
-                            <div class="icon-shape icon-lg rounded-circle bg-indigo-subtle text-indigo border border-indigo-subtle border-2" style="background-color: #e0e7ff; color: #6366f1;">
-                                <i class="ti ti-binary fs-3"></i>
-                            </div>
-                            <h4 class="card-title mb-0 ms-3 fw-bold">Thuật toán AES</h4>
-                        </div>
-                        <p class="card-text text-muted mb-4 small flex-grow-1">Chuẩn mã hóa tiên tiến <span class="fw-semibold text-dark">AES-128</span> với cấu trúc mạng hoán vị thay thế (SPN).</p>
-                        <a href="/aes" class="btn btn-outline-indigo d-flex align-items-center justify-content-center fw-semibold rounded-pill py-2" style="color: #6366f1; border-color: #6366f1;">
-                            Mở công cụ <i class="ti ti-arrow-right ms-2"></i>
-                        </a>
-                    </div>
+            <div class="col-xl-4 col-md-6">
+                <div class="card card-crypto h-100 p-4">
+                    <h5 class="fw-bold mb-3">Thuật toán AES</h5>
+                    <p class="text-muted small mb-4 flex-grow-1">Advanced Encryption Standard - Chuẩn mã hóa hiện đại 128-bit với các phép toán trên trường hữu hạn GF(2⁸).</p>
+                    <a href="/aes" class="btn btn-primary-custom w-100">Khám phá</a>
+                </div>
+            </div>
+
+            <!-- RSA -->
+            <div class="col-xl-4 col-md-6">
+                <div class="card card-crypto h-100 p-4">
+                    <h5 class="fw-bold mb-3">Thuật toán RSA</h5>
+                    <p class="text-muted small mb-4 flex-grow-1">Hệ mã hóa công khai dựa trên độ khó của bài toán phân tích thừa số nguyên tố. Phù hợp cho chữ ký số và trao đổi khóa.</p>
+                    <a href="/rsa" class="btn btn-primary-custom w-100">Khám phá</a>
                 </div>
             </div>
 

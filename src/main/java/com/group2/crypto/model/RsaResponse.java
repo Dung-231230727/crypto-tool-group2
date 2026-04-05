@@ -11,7 +11,7 @@ public class RsaResponse {
     private String privateKey;
     private String ciphertext;
     private String plaintext;
-    private List<String> steps;
+    private List<String> transcript;
     private String errorMessage;
 
     public String getN() { return n; }
@@ -30,8 +30,8 @@ public class RsaResponse {
     public void setCiphertext(String ciphertext) { this.ciphertext = ciphertext; }
     public String getPlaintext() { return plaintext; }
     public void setPlaintext(String plaintext) { this.plaintext = plaintext; }
-    public List<String> getSteps() { return steps; }
-    public void setSteps(List<String> steps) { this.steps = steps; }
+    public List<String> getTranscript() { return transcript; }
+    public void setTranscript(List<String> transcript) { this.transcript = transcript; }
     public String getErrorMessage() { return errorMessage; }
     public void setErrorMessage(String errorMessage) { this.errorMessage = errorMessage; }
 }

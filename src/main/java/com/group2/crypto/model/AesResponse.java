@@ -1,15 +1,18 @@
 package com.group2.crypto.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class AesResponse {
     private String result = "";
     private String errorMessage = null;
     private String mode = "";
     private String inputData = "";
     private String inputKey = "";
-    private java.util.List<AesStep> steps = new java.util.ArrayList<>();
+    private List<String> transcript = new ArrayList<>();
 
-    public java.util.List<AesStep> getSteps() { return steps; }
-    public void setSteps(java.util.List<AesStep> steps) { this.steps = steps; }
+    public List<String> getTranscript() { return transcript; }
+    public void setTranscript(List<String> transcript) { this.transcript = transcript; }
 
     public String getResult() { return result; }
     public void setResult(String result) { this.result = result; }
