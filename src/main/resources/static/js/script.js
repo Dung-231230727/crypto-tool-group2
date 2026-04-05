@@ -1,8 +1,51 @@
-/* Active nav link */
+/* Sidebar Toggle & Persistence */
+function toggleSidebar() {
+    const body = document.body;
+    const isMobile = window.innerWidth <= 991.98;
+    
+    if (isMobile) {
+        body.classList.toggle('sidebar-open');
+    } else {
+        body.classList.toggle('sidebar-collapsed');
+        // Persist desktop preference
+        localStorage.setItem('sidebar-collapsed', body.classList.contains('sidebar-collapsed'));
+    }
+}
+
+// Global initialization to prevent flicker
+(function() {
+    if (window.innerWidth > 991.98) {
+        const isCollapsed = localStorage.getItem('sidebar-collapsed') === 'true';
+        if (isCollapsed) {
+            // Apply class to document element early
+            document.documentElement.classList.add('sidebar-collapsed-init');
+        }
+    }
+})();
+
+// Close sidebar on mobile when a link is clicked
+function handleNavLinkClick() {
+    if (window.innerWidth <= 991.98) {
+        document.body.classList.remove('sidebar-open');
+    }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
+    // Handover from immediate state (html) to interactive state (body)
+    const htmlClass = document.documentElement.classList;
+    if (htmlClass.contains('sidebar-collapsed-init')) {
+        document.body.classList.add('sidebar-collapsed');
+        htmlClass.remove('sidebar-collapsed-init');
+    }
+
+    // Active nav link & click handler
     const path = window.location.pathname;
     document.querySelectorAll('.nav-link').forEach(link => {
         const href = link.getAttribute('href');
+        
+        // Add click listener to close sidebar on mobile
+        link.addEventListener('click', handleNavLinkClick);
+
         if (href === path || (path.startsWith(href) && href !== '/')) {
             link.classList.add('active');
         } else if (href === '/' && path === '/') {

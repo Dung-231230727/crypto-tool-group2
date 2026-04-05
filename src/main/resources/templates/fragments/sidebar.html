@@ -1,11 +1,22 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <body>
-    <div th:fragment="sidebar" class="sidebar d-flex flex-column flex-shrink-0 p-4 shadow-sm z-3">
-        <a href="/" class="d-flex align-items-center mb-1 text-decoration-none text-dark">
-            <i class="ti ti-shield-check fs-2 text-primary me-2"></i>
-            <span class="fs-4 fw-bold text-dark">Crypto Tool</span>
-        </a>
+    <div th:fragment="sidebar" class="sidebar d-flex flex-column flex-shrink-0 p-4 shadow-sm">
+        <!-- Floating Toggle Button (Desktop) -->
+        <button class="sidebar-toggle-btn d-none d-lg-flex" onclick="toggleSidebar()" title="Thu gọn / Mở rộng">
+            <i class="ti ti-chevron-left"></i>
+        </button>
+
+        <div class="d-flex align-items-center justify-content-between mb-1">
+            <a href="/" class="d-flex align-items-center text-decoration-none text-dark">
+                <i class="ti ti-shield-check fs-2 text-primary me-2"></i>
+                <span class="fs-4 fw-bold text-dark text-nowrap">Crypto Tool</span>
+            </a>
+            <!-- Mobile Close Button -->
+            <button class="btn btn-link text-muted p-0 d-lg-none" onclick="toggleSidebar()">
+                <i class="ti ti-x fs-2"></i>
+            </button>
+        </div>
         <div class="text-muted small text-uppercase fw-semibold mb-4 ms-1" style="letter-spacing:1px">Nhóm 2</div>
         
         <ul class="nav nav-pills flex-column mb-auto gap-1">

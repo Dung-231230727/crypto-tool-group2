@@ -6,15 +6,26 @@
     <title>Crypto Tool – Nhóm 2</title>
     <link rel="stylesheet" href="/css/theme.css"/>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css"/>
+    <script src="/js/script.js"></script>
 </head>
-<body class="d-flex flex-nowrap" style="height: 100vh; overflow: hidden;">
+<body class="d-flex">
+    <!-- Sidebar Overlay for Mobile -->
+    <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
 
-<!-- Sidebar Fragment -->
-<aside th:replace="~{fragments/sidebar :: sidebar}"></aside>
+    <aside th:replace="~{fragments/sidebar :: sidebar}"></aside>
 
-<!-- Main content -->
-<main class="main-content">
-    <div class="p-4 p-lg-5">
+    <main class="main-content">
+        <!-- Mobile Header -->
+        <header class="mobile-header d-lg-none">
+            <button class="btn btn-link text-dark p-0" onclick="toggleSidebar()">
+                <i class="ti ti-menu-2 fs-1"></i>
+            </button>
+            <span class="fw-bold fs-3 text-dark">Crypto Tool</span>
+            <div style="width: 32px;"></div>
+        </header>
+
+        <div class="p-4 p-lg-5">
+            <h2 class="fw-bold mb-0">Trang chủ</h2>
         
         <!-- Hero Section -->
         <div class="bg-white p-5 mb-5 rounded-4 border shadow-sm">
@@ -30,47 +41,47 @@
         <div class="row g-4">
             
             <!-- Vigenere -->
-            <div class="col-xl-4 col-md-6">
-                <div class="card card-crypto h-100 p-4">
+            <div class="col-xl-4 col-md-6 col-12">
+                <div class="card card-crypto h-100 p-4 shadow-sm">
                     <h5 class="fw-bold mb-3">Mã Vigenere</h5>
                     <p class="text-muted small mb-4 flex-grow-1">Hệ mã thay thế đa ký tự trên bảng chữ cái Latinh. Hỗ trợ chế độ Lặp khóa và Tự động khóa (Autokey).</p>
-                    <a href="/vigenere" class="btn btn-primary-custom w-100">Khám phá</a>
+                    <a href="/vigenere" class="btn btn-primary-custom w-100 mt-auto">Khám phá</a>
                 </div>
             </div>
 
             <!-- Modulo -->
-            <div class="col-xl-4 col-md-6">
-                <div class="card card-crypto h-100 p-4">
+            <div class="col-xl-4 col-md-6 col-12">
+                <div class="card card-crypto h-100 p-4 shadow-sm">
                     <h5 class="fw-bold mb-3">Nghịch đảo Modulo</h5>
                     <p class="text-muted small mb-4 flex-grow-1">Tìm số nghịch đảo a⁻¹ mod n sử dụng thuật toán Euclid mở rộng. Hiển thị bảng tính toán chi tiết từng bước.</p>
-                    <a href="/modulo" class="btn btn-primary-custom w-100">Khám phá</a>
+                    <a href="/modulo" class="btn btn-primary-custom w-100 mt-auto">Khám phá</a>
                 </div>
             </div>
 
             <!-- DES -->
-            <div class="col-xl-4 col-md-6">
-                <div class="card card-crypto h-100 p-4">
+            <div class="col-xl-4 col-md-6 col-12">
+                <div class="card card-crypto h-100 p-4 shadow-sm">
                     <h5 class="fw-bold mb-3">Thuật toán DES</h5>
                     <p class="text-muted small mb-4 flex-grow-1">Data Encryption Standard - Hệ mã hóa khối 64-bit cổ điển dựa trên mạng Feistel và 16 vòng biến đổi.</p>
-                    <a href="/des" class="btn btn-primary-custom w-100">Khám phá</a>
+                    <a href="/des" class="btn btn-primary-custom w-100 mt-auto">Khám phá</a>
                 </div>
             </div>
 
             <!-- AES -->
-            <div class="col-xl-4 col-md-6">
-                <div class="card card-crypto h-100 p-4">
+            <div class="col-xl-4 col-md-6 col-12">
+                <div class="card card-crypto h-100 p-4 shadow-sm">
                     <h5 class="fw-bold mb-3">Thuật toán AES</h5>
                     <p class="text-muted small mb-4 flex-grow-1">Advanced Encryption Standard - Chuẩn mã hóa hiện đại 128-bit với các phép toán trên trường hữu hạn GF(2⁸).</p>
-                    <a href="/aes" class="btn btn-primary-custom w-100">Khám phá</a>
+                    <a href="/aes" class="btn btn-primary-custom w-100 mt-auto">Khám phá</a>
                 </div>
             </div>
 
             <!-- RSA -->
-            <div class="col-xl-4 col-md-6">
-                <div class="card card-crypto h-100 p-4">
+            <div class="col-xl-4 col-md-6 col-12">
+                <div class="card card-crypto h-100 p-4 shadow-sm">
                     <h5 class="fw-bold mb-3">Thuật toán RSA</h5>
                     <p class="text-muted small mb-4 flex-grow-1">Hệ mã hóa công khai dựa trên độ khó của bài toán phân tích thừa số nguyên tố. Phù hợp cho chữ ký số và trao đổi khóa.</p>
-                    <a href="/rsa" class="btn btn-primary-custom w-100">Khám phá</a>
+                    <a href="/rsa" class="btn btn-primary-custom w-100 mt-auto">Khám phá</a>
                 </div>
             </div>
 

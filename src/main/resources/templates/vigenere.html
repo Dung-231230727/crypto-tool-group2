@@ -7,24 +7,36 @@
     <title>Mã Vigenere – Nhóm 2</title>
     <link rel="stylesheet" href="/css/theme.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css" />
+    <script src="/js/script.js"></script>
 </head>
 
-<body class="d-flex flex-nowrap" style="height: 100vh; overflow: hidden;">
+<body class="d-flex">
+    <!-- Sidebar Overlay for Mobile -->
+    <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
 
     <aside th:replace="~{fragments/sidebar :: sidebar}"></aside>
 
     <main class="main-content">
+        <!-- Mobile Header -->
+        <header class="mobile-header d-lg-none">
+            <button class="btn btn-link text-dark p-0" onclick="toggleSidebar()">
+                <i class="ti ti-menu-2 fs-1"></i>
+            </button>
+            <span class="fw-bold fs-3 text-dark">Vigenere</span>
+            <div style="width: 32px;"></div>
+        </header>
+
         <div class="p-4 p-lg-5">
             <div class="d-flex align-items-center justify-content-between mb-4">
-                <div>
-                    <span class="badge-custom mb-2 d-inline-block">Mật mã cổ điển</span>
-                    <h2 class="fw-bold mb-1">Mã Vigenere</h2>
-                    <p class="text-muted mb-0">Hệ mã hóa thay thế đa bảng chữ cái sử dụng từ khóa.</p>
-                </div>
+                    <div>
+                        <span class="badge-custom mb-2 d-inline-block">Mật mã cổ điển</span>
+                        <h2 class="fw-bold mb-1">Mã Vigenere</h2>
+                        <p class="text-muted mb-0">Hệ mã hóa thay thế đa bảng chữ cái sử dụng từ khóa.</p>
+                    </div>
             </div>
 
             <div class="row g-4">
-                <div class="col-xl-4 col-lg-5">
+                <div class="col-xl-4 col-lg-5 col-12">
                     <div class="card card-crypto">
                         <div class="card-body p-4">
                             <div class="d-flex justify-content-between align-items-center mb-4">
@@ -98,8 +110,10 @@
 
                             <div th:if="${not #lists.isEmpty(response.transcript)}">
                                 <div class="d-flex justify-content-between align-items-center mb-3">
-                                    <h6 class="fw-bold mb-0 small text-uppercase text-muted">Tiến trình thực hiện</h6>
-                                    <button class="btn btn-sm btn-link text-primary text-decoration-none p-0" onclick="copyTranscript()">
+                                    <h6 class="fw-bold mb-0 small text-uppercase text-muted">Chi tiết các bước thực hiện
+                                    </h6>
+                                    <button class="btn btn-sm btn-link text-primary text-decoration-none p-0"
+                                        onclick="copyTranscript()">
                                         <i class="ti ti-copy me-1"></i>Sao chép các bước
                                     </button>
                                 </div>

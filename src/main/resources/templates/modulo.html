@@ -1,148 +1,181 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
 <head>
-    <meta charset="UTF-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Nghịch đảo Modulo – Nhóm 2</title>
-    <link rel="stylesheet" href="/css/theme.css"/>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css"/>
+    <link rel="stylesheet" href="/css/theme.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css" />
+    <script src="/js/script.js"></script>
 </head>
-<body class="d-flex flex-nowrap" style="height: 100vh; overflow: hidden;">
 
-<aside th:replace="~{fragments/sidebar :: sidebar}"></aside>
+<body class="d-flex">
+    <!-- Sidebar Overlay for Mobile -->
+    <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
 
-<main class="main-content">
-    <div class="p-4 p-lg-5">
-        <div class="d-flex align-items-center justify-content-between mb-4">
-            <div>
-                <span class="badge-custom mb-2 d-inline-block">Số học Modulo</span>
-                <h2 class="fw-bold mb-1">Tìm Số nghịch đảo Modulo</h2>
-                <p class="text-muted mb-0">Tìm số a⁻¹ sao cho a * a⁻¹ ≡ 1 (mod n) sử dụng thuật toán Euclid mở rộng.</p>
-            </div>
-        </div>
+    <aside th:replace="~{fragments/sidebar :: sidebar}"></aside>
 
-        <div class="row g-4">
-            <div class="col-xl-4 col-lg-5">
-                <div class="card card-crypto">
-                    <div class="card-body p-4">
-                        <div class="d-flex justify-content-between align-items-center mb-4">
-                            <h5 class="fw-bold mb-0">Tham số</h5>
-                            <button type="button" class="btn btn-sm btn-link text-primary text-decoration-none fw-bold p-0" onclick="useSampleData()">
-                                <i class="ti ti-magic-wand me-1"></i>Dữ liệu mẫu
-                            </button>
-                        </div>
-                        
-                        <form th:action="@{/modulo}" th:object="${request}" method="post">
-                            <div class="mb-3">
-                                <label class="form-label small fw-bold text-muted">Số nguyên a</label>
-                                <input type="number" class="form-control font-monospace" th:field="*{a}" id="inputA" placeholder="3" required/>
-                            </div>
-                            <div class="mb-4">
-                                <label class="form-label small fw-bold text-muted">Mô-đun n</label>
-                                <input type="number" class="form-control font-monospace" th:field="*{n}" id="inputN" placeholder="11" required/>
-                            </div>
-                            
-                            <div class="mb-4">
-                                <label class="form-label small fw-bold text-uppercase text-muted">Phương pháp</label>
-                                <div class="btn-group w-100">
-                                    <input type="radio" class="btn-check" th:field="*{method}" value="euclidean" id="method-euc" checked>
-                                    <label class="btn btn-outline-primary" for="method-euc">Euclid mở rộng</label>
-                                    <input type="radio" class="btn-check" th:field="*{method}" value="brute" id="method-brute">
-                                    <label class="btn btn-outline-primary" for="method-brute">Vét cạn (Định nghĩa)</label>
-                                </div>
-                            </div>
+    <main class="main-content">
+        <!-- Mobile Header -->
+        <header class="mobile-header d-lg-none">
+            <button class="btn btn-link text-dark p-0" onclick="toggleSidebar()">
+                <i class="ti ti-menu-2 fs-1"></i>
+            </button>
+            <span class="fw-bold fs-3 text-dark">Modulo Inverse</span>
+            <div style="width: 32px;"></div>
+        </header>
 
-                            <button type="submit" class="btn btn-primary-custom w-100 py-2">Thực thi</button>
-                        </form>
-                    </div>
+        <div class="p-4 p-lg-5">
+            <div class="d-flex align-items-center justify-content-between mb-4">
+                <div>
+                    <span class="badge-custom mb-2 d-inline-block">Số học Modulo</span>
+                    <h2 class="fw-bold mb-1">Tìm Số nghịch đảo Modulo</h2>
+                    <p class="text-muted mb-0">Tìm số a⁻¹ sao cho a * a⁻¹ ≡ 1 (mod n) sử dụng thuật toán Euclid mở rộng.
+                    </p>
                 </div>
             </div>
 
-            <div class="col-xl-8 col-lg-7">
-                <div th:if="${response != null}">
-                    <!-- Error Message -->
-                    <div th:if="${response.errorMessage != null}" class="alert alert-danger border-0 shadow-sm mb-4">
-                        <i class="ti ti-alert-circle me-2"></i> <span th:text="${response.errorMessage}"></span>
-                    </div>
-
-                    <!-- Result Section -->
-                    <div th:if="${response.hasInverse or response.message != null}">
-                        <div class="card card-crypto mb-4 border-primary shadow-sm" th:classappend="${!response.hasInverse ? 'border-danger' : ''}">
-                            <div class="card-body p-4">
-                                <div class="d-flex justify-content-between align-items-center mb-2">
-                                    <span class="small fw-bold text-uppercase text-muted">Kết quả</span>
-                                    <button th:if="${response.hasInverse}" class="btn btn-sm btn-outline-secondary rounded-pill" th:data-value="${response.inverse}" onclick="navigator.clipboard.writeText(this.dataset.value)">Sao chép</button>
-                                </div>
-                                <div class="fs-2 fw-bold font-monospace text-primary text-break" th:text="${response.message}"></div>
-                                <div th:if="${response.hasInverse}" class="mt-2 text-muted small">
-                                    GCD(a, n) = <span th:text="${response.gcd}"></span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div th:if="${not #lists.isEmpty(response.transcript)}">
-                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                <h6 class="fw-bold mb-0 small text-uppercase text-muted">Quy trình thực hiện</h6>
-                                <button class="btn btn-sm btn-link text-primary text-decoration-none p-0" onclick="copyTranscript()">
-                                    <i class="ti ti-copy me-1"></i>Sao chép các bước
+            <div class="row g-4">
+                <div class="col-xl-4 col-lg-5 col-12">
+                    <div class="card card-crypto">
+                        <div class="card-body p-4">
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <h5 class="fw-bold mb-0">Tham số</h5>
+                                <button type="button"
+                                    class="btn btn-sm btn-link text-primary text-decoration-none fw-bold p-0"
+                                    onclick="useSampleData()">
+                                    <i class="ti ti-magic-wand me-1"></i>Dữ liệu mẫu
                                 </button>
                             </div>
-                            <div class="transcript-container" id="transcript-box">
-                                <div th:each="line : ${response.transcript}" th:text="${line}"></div>
-                            </div>
-                        </div>
 
-                        <div th:if="${not #lists.isEmpty(response.table)}">
-                            <h6 class="fw-bold mb-3 small text-uppercase text-muted">Bảng tính toán chi tiết</h6>
-                            <div class="table-responsive">
-                                <table class="table table-sm table-bordered font-monospace small">
-                                    <thead class="bg-light">
-                                        <tr>
-                                            <th>Bước</th>
-                                            <th>q</th>
-                                            <th>r</th>
-                                            <th>x</th>
-                                            <th>y</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr th:each="step : ${response.table}">
-                                            <td th:text="${step.step}"></td>
-                                            <td th:text="${step.q}"></td>
-                                            <td th:text="${step.r}"></td>
-                                            <td th:text="${step.x}"></td>
-                                            <td th:text="${step.y}"></td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
+                            <form th:action="@{/modulo}" th:object="${request}" method="post">
+                                <div class="mb-3">
+                                    <label class="form-label small fw-bold text-muted">Số nguyên a</label>
+                                    <input type="number" class="form-control font-monospace" th:field="*{a}" id="inputA"
+                                        placeholder="3" required />
+                                </div>
+                                <div class="mb-4">
+                                    <label class="form-label small fw-bold text-muted">Mô-đun n</label>
+                                    <input type="number" class="form-control font-monospace" th:field="*{n}" id="inputN"
+                                        placeholder="11" required />
+                                </div>
+
+                                <div class="mb-4">
+                                    <label class="form-label small fw-bold text-uppercase text-muted">Phương
+                                        pháp</label>
+                                    <div class="btn-group w-100">
+                                        <input type="radio" class="btn-check" th:field="*{method}" value="euclidean"
+                                            id="method-euc" checked>
+                                        <label class="btn btn-outline-primary" for="method-euc">Euclid mở rộng</label>
+                                        <input type="radio" class="btn-check" th:field="*{method}" value="brute"
+                                            id="method-brute">
+                                        <label class="btn btn-outline-primary" for="method-brute">Vét cạn (Định
+                                            nghĩa)</label>
+                                    </div>
+                                </div>
+
+                                <button type="submit" class="btn btn-primary-custom w-100 py-2">Thực thi</button>
+                            </form>
                         </div>
                     </div>
                 </div>
-                
-                <div th:if="${response == null}" class="py-5 text-center text-muted">
-                    <i class="ti ti-math text-light mb-3 d-block" style="font-size: 3rem;"></i>
-                    Nhập a và n để tìm số nghịch đảo bằng thuật toán Euclid mở rộng.
+
+                <div class="col-xl-8 col-lg-7">
+                    <div th:if="${response != null}">
+                        <!-- Error Message -->
+                        <div th:if="${response.errorMessage != null}"
+                            class="alert alert-danger border-0 shadow-sm mb-4">
+                            <i class="ti ti-alert-circle me-2"></i> <span th:text="${response.errorMessage}"></span>
+                        </div>
+
+                        <!-- Result Section -->
+                        <div th:if="${response.hasInverse or response.message != null}">
+                            <div class="card card-crypto mb-4 border-primary shadow-sm"
+                                th:classappend="${!response.hasInverse ? 'border-danger' : ''}">
+                                <div class="card-body p-4">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <span class="small fw-bold text-uppercase text-muted">Kết quả</span>
+                                        <button th:if="${response.hasInverse}"
+                                            class="btn btn-sm btn-outline-secondary rounded-pill"
+                                            th:data-value="${response.inverse}"
+                                            onclick="navigator.clipboard.writeText(this.dataset.value)">Sao
+                                            chép</button>
+                                    </div>
+                                    <div class="fs-2 fw-bold font-monospace text-primary text-break"
+                                        th:text="${response.message}"></div>
+                                    <div th:if="${response.hasInverse}" class="mt-2 text-muted small">
+                                        GCD(a, n) = <span th:text="${response.gcd}"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div th:if="${not #lists.isEmpty(response.transcript)}">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h6 class="fw-bold mb-0 small text-uppercase text-muted">Chi tiết các bước thực hiện
+                                    </h6>
+                                    <button class="btn btn-sm btn-link text-primary text-decoration-none p-0"
+                                        onclick="copyTranscript()">
+                                        <i class="ti ti-copy me-1"></i>Sao chép các bước
+                                    </button>
+                                </div>
+                                <div class="transcript-container" id="transcript-box">
+                                    <div th:each="line : ${response.transcript}" th:text="${line}"></div>
+                                </div>
+                            </div>
+
+                            <div th:if="${not #lists.isEmpty(response.table)}">
+                                <h6 class="fw-bold mb-3 small text-uppercase text-muted">Bảng tính toán chi tiết</h6>
+                                <div class="table-responsive">
+                                    <table class="table table-sm table-bordered font-monospace small">
+                                        <thead class="bg-light">
+                                            <tr>
+                                                <th>Bước</th>
+                                                <th>q</th>
+                                                <th>r</th>
+                                                <th>x</th>
+                                                <th>y</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr th:each="step : ${response.table}">
+                                                <td th:text="${step.step}"></td>
+                                                <td th:text="${step.q}"></td>
+                                                <td th:text="${step.r}"></td>
+                                                <td th:text="${step.x}"></td>
+                                                <td th:text="${step.y}"></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div th:if="${response == null}" class="py-5 text-center text-muted">
+                        <i class="ti ti-math text-light mb-3 d-block" style="font-size: 3rem;"></i>
+                        Nhập a và n để tìm số nghịch đảo bằng thuật toán Euclid mở rộng.
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-</main>
+    </main>
 
-<script>
-    function useSampleData() {
-        document.getElementById('inputA').value = '3';
-        document.getElementById('inputN').value = '11';
-    }
-
-    function copyTranscript() {
-        const box = document.getElementById('transcript-box');
-        if (box) {
-            const text = box.innerText;
-            navigator.clipboard.writeText(text);
-            alert('Đã sao chép các bước thực hiện!');
+    <script>
+        function useSampleData() {
+            document.getElementById('inputA').value = '3';
+            document.getElementById('inputN').value = '11';
         }
-    }
-</script>
+
+        function copyTranscript() {
+            const box = document.getElementById('transcript-box');
+            if (box) {
+                const text = box.innerText;
+                navigator.clipboard.writeText(text);
+                alert('Đã sao chép các bước thực hiện!');
+            }
+        }
+    </script>
 </body>
+
 </html>
