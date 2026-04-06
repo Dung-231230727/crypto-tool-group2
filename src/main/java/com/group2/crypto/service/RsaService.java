@@ -90,14 +90,14 @@ public class RsaService {
                 response.setErrorMessage("Bản rõ M = " + M + " phải nhỏ hơn n = " + n + ".");
                 return response;
             }
-            BigInteger C = M.modPow(e, n);
+            BigInteger C = M.modPow(d, n);
             response.setCiphertext(C.toString());
-            transcript.add("Bước 6: Mã hóa:  C = Mᵉ mod n = " + M + "^" + e + " mod " + n + " = " + C);
+            transcript.add("Bước 6: Mã hóa:  C = Mᵈ mod n = " + M + "^" + d + " mod " + n + " = " + C);
 
             // Step 7: Decrypt
-            BigInteger Mprime = C.modPow(d, n);
+            BigInteger Mprime = C.modPow(e, n);
             response.setPlaintext(Mprime.toString());
-            transcript.add("Bước 7: Giải mã: M' = Cᵈ mod n = " + C + "^" + d + " mod " + n + " = " + Mprime);
+            transcript.add("Bước 7: Giải mã: M' = Cᵉ mod n = " + C + "^" + e + " mod " + n + " = " + Mprime);
             if (Mprime.equals(M)) {
                 transcript.add("✓ Kết quả: M' = M = " + M + "  → Thành công!");
             }
