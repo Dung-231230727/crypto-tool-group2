@@ -112,8 +112,13 @@
                                 </div>
                             </div>
                             <div th:if="${not #lists.isEmpty(response.transcript)}">
-                                <h6 class="fw-bold mb-3 small text-uppercase text-muted">Chi tiết các bước</h6>
-                                <div class="transcript-container">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h6 class="fw-bold mb-0 small text-uppercase text-muted">Chi tiết các bước thực hiện</h6>
+                                    <button class="btn btn-sm btn-link text-primary text-decoration-none p-0" onclick="copyTranscript()">
+                                        <i class="ti ti-copy me-1"></i>Sao chép các bước
+                                    </button>
+                                </div>
+                                <div class="transcript-container" id="transcript-box">
                                     <div th:each="line : ${response.transcript}" th:text="${line}"></div>
                                 </div>
                             </div>
@@ -251,6 +256,14 @@
             const serverSub = /*[[${request.subMethod}]]*/ 'BASIC';
             if (serverSub) document.getElementById('inputSub').value = serverSub;
         };
+        function copyTranscript() {
+            const box = document.getElementById('transcript-box');
+            if (box) {
+                const text = box.innerText;
+                navigator.clipboard.writeText(text);
+                alert('Đã sao chép các bước thực hiện!');
+            }
+        }
     </script>
     <script src="/js/script.js"></script>
 </body>
