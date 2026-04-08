@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mã hóa công khai – Ngô Văn Dũng</title>
+    <link rel="stylesheet" href="/css/theme.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css" />
+</head>
+
+<body class="d-flex">
+    <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+    <aside th:replace="~{fragments/sidebar :: sidebar}"></aside>
+
+    <main class="main-content">
+        <header class="mobile-header d-lg-none">
+            <button class="btn btn-link text-dark p-0" onclick="toggleSidebar()">
+                <i class="ti ti-menu-2 fs-1"></i>
+            </button>
+            <span class="fw-bold fs-3 text-dark">Public Key</span>
+            <div style="width: 32px;"></div>
+        </header>
+
+        <div class="p-4 p-lg-5">
+            <div class="d-flex align-items-center justify-content-between mb-4">
+                <div>
+                    <span class="badge-custom mb-2 d-inline-block">Cá nhân</span>
+                    <h2 class="fw-bold mb-1">Mã hóa Khóa công khai</h2>
+                    <p class="text-muted mb-0">Ngô Văn Dũng – DH, RSA, ElGamal and DSA.</p>
+                </div>
+            </div>
+
+            <div class="row g-4">
+                <div class="col-xl-4 col-lg-5 col-12">
+                    <div class="card card-crypto">
+                        <div class="card-body p-4">
+                            <form th:action="@{/public-key}" th:object="${request}" method="post">
+                                <div class="d-flex justify-content-between align-items-center mb-4">
+                                    <h5 class="fw-bold mb-0">Cấu hình</h5>
+                                    <button type="button" class="btn btn-sm btn-link text-primary text-decoration-none fw-bold p-0" onclick="useSample()">
+                                        <i class="ti ti-magic-wand me-1"></i>Dữ liệu mẫu
+                                    </button>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label small fw-bold text-uppercase text-muted">Thuật toán</label>
+                                    <select class="form-select" th:field="*{algorithm}" id="inputAlgo" onchange="updateFields()">
+                                        <option value="DH">1. Trao đổi khóa Diffie-Hellman</option>
+                                        <option value="RSA">2. Thuật toán RSA</option>
+                                        <option value="ELGAMAL">3. Mật mã ElGamal</option>
+                                        <option value="DSA">4. Chữ ký điện tử DSA</option>
+                                    </select>
+                                </div>
+
+                                <div id="group-subMethod" class="mb-3 d-none">
+                                    <label class="form-label small fw-bold text-uppercase text-muted">Bài toán / Kịch bản</label>
+                                    <select class="form-select" th:field="*{subMethod}" id="inputSub">
+                                        <option value="SIGNATURE">Bài toán 1: An ký (Chữ ký số)</option>
+                                        <option value="CONFIDENTIALITY">Bài toán 2: Ba gửi cho An (Bảo mật)</option>
+                                    </select>
+                                </div>
+
+                                <div class="row mb-3 d-none" id="row-pq">
+                                    <div class="col-6" id="group-p">
+                                        <label class="form-label small fw-bold text-uppercase text-muted">p (Số lớn)</label>
+                                        <input type="text" class="form-control" th:field="*{p}" id="inputP" placeholder="7919" />
+                                    </div>
+                                    <div class="col-6" id="group-q">
+                                        <label class="form-label small fw-bold text-uppercase text-muted">q (Số nhỏ hơn)</label>
+                                        <input type="text" class="form-control" th:field="*{q}" id="inputQ" placeholder="q" />
+                                    </div>
+                                </div>
+
+                                <div class="row mb-3 d-none" id="row-gh">
+                                    <div class="col-6" id="group-g">
+                                        <label class="form-label small fw-bold text-uppercase text-muted">g / a (Cơ số)</label>
+                                        <input type="text" class="form-control" th:field="*{g}" id="inputG" placeholder="7" />
+                                    </div>
+                                    <div class="col-6" id="group-h">
+                                        <label class="form-label small fw-bold text-uppercase text-muted">h (Tính g)</label>
+                                        <input type="text" class="form-control" th:field="*{h}" id="inputH" placeholder="23" />
+                                    </div>
+                                </div>
+
+                                <div class="row mb-3 d-none" id="row-xak">
+                                    <div class="col-6" id="group-xa">
+                                        <label class="form-label small fw-bold text-uppercase text-muted" id="labelXA">xA / x (Bí mật)</label>
+                                        <input type="text" class="form-control" th:field="*{xA}" id="inputXA" placeholder="xA" />
+                                    </div>
+                                    <div class="col-6" id="group-k">
+                                        <label class="form-label small fw-bold text-uppercase text-muted" id="labelK">k (Ngẫu nhiên)</label>
+                                        <input type="text" class="form-control" th:field="*{k}" id="inputK" placeholder="k" />
+                                    </div>
+                                </div>
+
+                                <div class="mb-3" id="group-yb">
+                                    <label class="form-label small fw-bold text-uppercase text-muted">yB (Công khai B)</label>
+                                    <input type="text" class="form-control" th:field="*{yB}" id="inputYB" placeholder="yB" />
+                                </div>
+
+                                <div class="mb-3" id="group-msg">
+                                    <label class="form-label small fw-bold text-uppercase text-muted">Thông điệp M / H(M)</label>
+                                    <input type="text" class="form-control" th:field="*{message}" id="inputM" placeholder="M" />
+                                </div>
+
+                                <button type="submit" class="btn btn-primary-custom w-100 py-2 mt-2">Thực thi</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xl-8 col-lg-7">
+                    <div th:if="${response != null}">
+                        <div th:if="${response.errorMessage != null}" class="alert alert-danger mb-4" th:text="${response.errorMessage}"></div>
+                        <div th:if="${response.result != null}">
+                            <div class="card card-crypto mb-4 border-primary">
+                                <div class="card-body p-4">
+                                    <span class="small fw-bold text-uppercase text-muted">Kết quả</span>
+                                    <div class="fs-2 fw-bold text-primary" th:text="${response.result}"></div>
+                                </div>
+                            </div>
+                            <div th:if="${not #lists.isEmpty(response.transcript)}">
+                                <h6 class="fw-bold mb-3 small text-uppercase text-muted">Chi tiết các bước</h6>
+                                <div class="transcript-container">
+                                    <div th:each="line : ${response.transcript}" th:text="${line}"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script th:inline="javascript">
+        function updateFields() {
+            const algo = document.getElementById('inputAlgo').value;
+            const ga = document.getElementById('group-g');
+            const gq = document.getElementById('group-q');
+            const gh = document.getElementById('group-h');
+            const gyb = document.getElementById('group-yb');
+            const gm = document.getElementById('group-msg');
+            const gp = document.getElementById('group-p');
+            const gxa = document.getElementById('group-xa');
+            const gk = document.getElementById('group-k');
+            
+            const pInput = document.getElementById('inputP');
+            const gLabel = ga.querySelector('label');
+            const groupSub = document.getElementById('group-subMethod');
+            const lxa = document.getElementById('labelXA');
+            const lk = document.getElementById('labelK');
+            
+            // Reset Labels & Content
+            pInput.previousElementSibling.innerText = "p (Số lớn)";
+            gLabel.innerText = "g (Cơ số)";
+            lk.innerText = "k (Số ngẫu nhiên)";
+            lxa.innerText = "x (Khóa bí mật)";
+            gm.querySelector('label').innerText = "Thông điệp M / H(M)";
+
+            const rPQ = document.getElementById('row-pq');
+            const rGH = document.getElementById('row-gh');
+            const rXAK = document.getElementById('row-xak');
+
+            // Reset Visibility
+            groupSub.classList.add('d-none');
+            rPQ.classList.add('d-none');
+            rGH.classList.add('d-none');
+            rXAK.classList.add('d-none');
+            ga.classList.add('d-none');
+            gq.classList.add('d-none');
+            gh.classList.add('d-none');
+            gyb.classList.add('d-none');
+            gm.classList.add('d-none');
+            gp.classList.add('d-none');
+            gk.classList.add('d-none');
+            gxa.classList.add('d-none');
+
+            if (algo === 'DH') {
+                rPQ.classList.remove('d-none');
+                rGH.classList.remove('d-none');
+                rXAK.classList.remove('d-none');
+                gp.classList.remove('d-none');
+                ga.classList.remove('d-none');
+                gyb.classList.remove('d-none');
+                gxa.classList.remove('d-none');
+                pInput.previousElementSibling.innerText = "q (Số nguyên tố)";
+                gLabel.innerText = "a (Căn nguyên thủy)";
+                lxa.innerText = "xA (Khóa riêng An)";
+                document.getElementById('inputYB').previousElementSibling.innerText = "xB (Khóa riêng Ba)";
+            } else if (algo === 'RSA') {
+                groupSub.classList.remove('d-none');
+                rPQ.classList.remove('d-none');
+                rGH.classList.remove('d-none');
+                gp.classList.remove('d-none');
+                gq.classList.remove('d-none');
+                ga.classList.remove('d-none'); // Using g for e
+                pInput.previousElementSibling.innerText = "p";
+                document.getElementById('inputQ').previousElementSibling.innerText = "q";
+                gLabel.innerText = "e (Số mũ công khai)";
+                gm.classList.remove('d-none');
+                gm.querySelector('label').innerText = "Thông điệp M (Số nguyên)";
+            } else if (algo === 'ELGAMAL') {
+                rPQ.classList.remove('d-none');
+                rGH.classList.remove('d-none');
+                rXAK.classList.remove('d-none');
+                gp.classList.remove('d-none');
+                ga.classList.remove('d-none');
+                gxa.classList.remove('d-none');
+                gk.classList.remove('d-none');
+                gm.classList.remove('d-none');
+                pInput.previousElementSibling.innerText = "q (Số nguyên tố)";
+                gLabel.innerText = "a (Căn nguyên thủy)";
+                lxa.innerText = "xA (Khóa riêng An)";
+                lk.innerText = "k (Số ngẫu nhiên)";
+                gm.querySelector('label').innerText = "Thông điệp M";
+            } else if (algo === 'DSA') {
+                rPQ.classList.remove('d-none');
+                rGH.classList.remove('d-none');
+                rXAK.classList.remove('d-none');
+                gp.classList.remove('d-none');
+                gq.classList.remove('d-none');
+                gh.classList.remove('d-none');
+                gxa.classList.remove('d-none');
+                gk.classList.remove('d-none');
+                gm.classList.remove('d-none');
+                pInput.previousElementSibling.innerText = "p";
+                document.getElementById('inputQ').previousElementSibling.innerText = "q";
+                lxa.innerText = "xA (Khóa riêng An)";
+                lk.innerText = "k (Số ngẫu nhiên)";
+                gm.querySelector('label').innerText = "Mã băm H(M)";
+            }
+        }
+
+        function useSample() {
+            const algo = document.getElementById('inputAlgo').value;
+            const p = document.getElementById('inputP');
+            const q = document.getElementById('inputQ');
+            const g = document.getElementById('inputG');
+            const h = document.getElementById('inputH');
+            const xa = document.getElementById('inputXA');
+            const yb = document.getElementById('inputYB');
+            const k = document.getElementById('inputK');
+            const m = document.getElementById('inputM');
+
+            switch(algo) {
+                case 'DH': p.value="7879"; g.value="3"; xa.value="524"; yb.value="214"; break;
+                case 'RSA': p.value="37"; q.value="53"; g.value="47"; m.value="41"; break;
+                case 'ELGAMAL': p.value="7919"; g.value="7"; xa.value="323"; k.value="223"; m.value="364"; break;
+                case 'DSA': p.value="31"; q.value="5"; h.value="23"; xa.value="3"; k.value="6"; m.value="8"; break;
+            }
+        }
+
+        window.onload = function() {
+            updateFields();
+            const serverSub = /*[[${request.subMethod}]]*/ 'CONFIDENTIALITY';
+            if (serverSub) document.getElementById('inputSub').value = serverSub;
+        };
+    </script>
+    <script src="/js/script.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Toán học Modulo – Ngô Văn Dũng</title>
+    <link rel="stylesheet" href="/css/theme.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css" />
+</head>
+
+<body class="d-flex">
+    <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+    <aside th:replace="~{fragments/sidebar :: sidebar}"></aside>
+
+    <main class="main-content">
+        <header class="mobile-header d-lg-none">
+            <button class="btn btn-link text-dark p-0" onclick="toggleSidebar()">
+                <i class="ti ti-menu-2 fs-1"></i>
+            </button>
+            <span class="fw-bold fs-3 text-dark">Modulo Math</span>
+            <div style="width: 32px;"></div>
+        </header>
+
+        <div class="p-4 p-lg-5">
+            <div class="d-flex align-items-center justify-content-between mb-4">
+                <div>
+                    <span class="badge-custom mb-2 d-inline-block">Cá nhân</span>
+                    <h2 class="fw-bold mb-1">Toán học Modulo</h2>
+                    <p class="text-muted mb-0">Ngô Văn Dũng – Các thuật toán lũy thừa và lý thuyết số.</p>
+                </div>
+            </div>
+
+            <div class="row g-4">
+                <div class="col-xl-4 col-lg-5 col-12">
+                    <div class="card card-crypto">
+                        <div class="card-body p-4">
+                            <form th:action="@{/modulo}" th:object="${request}" method="post">
+                                <div class="d-flex justify-content-between align-items-center mb-4">
+                                    <h5 class="fw-bold mb-0">Cấu hình</h5>
+                                    <button type="button" class="btn btn-sm btn-link text-primary text-decoration-none fw-bold p-0" onclick="useSample()">
+                                        <i class="ti ti-magic-wand me-1"></i>Dữ liệu mẫu
+                                    </button>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label small fw-bold text-uppercase text-muted">Phép toán</label>
+                                    <select class="form-select" th:field="*{operation}" id="inputOp" onchange="updateFields()">
+                                        <option value="POWER">1. Tính lũy thừa modulo</option>
+                                        <option value="INVERSE">2. Tìm nghịch đảo modulo</option>
+                                        <option value="EULER">3. Tính giá trị hàm Euler</option>
+                                        <option value="CRT_SYS">4. Giải hệ phương trình CRT</option>
+                                        <option value="PR">5. Kiểm tra Căn nguyên thủy</option>
+                                        <option value="LOG">6. Logarithm rời rạc</option>
+                                        <option value="BASIC">7. Các biểu thức modulo cơ bản</option>
+                                    </select>
+                                </div>
+
+                                <div id="group-subMethod" class="mb-3 d-none">
+                                    <label class="form-label small fw-bold text-uppercase text-muted">Phương pháp / Biến thể</label>
+                                    <select class="form-select" th:field="*{subMethod}" id="inputSub">
+                                        <!-- Will be populated by JS -->
+                                    </select>
+                                </div>
+
+                                <div class="row g-3 d-none" id="row-ab">
+                                    <div id="group-a" class="col-6 mb-3">
+                                        <label class="form-label small fw-bold text-uppercase text-muted" id="labelA">a</label>
+                                        <input type="text" class="form-control" th:field="*{a}" id="inputA" placeholder="Cơ số a" />
+                                    </div>
+                                    <div id="group-b" class="col-6 mb-3 d-none">
+                                        <label class="form-label small fw-bold text-uppercase text-muted" id="labelB">b</label>
+                                        <input type="text" class="form-control" th:field="*{b}" id="inputB" placeholder="Cơ số b" />
+                                    </div>
+                                </div>
+
+                                <div class="row g-3 d-none" id="row-my">
+                                    <div id="group-m" class="col-6 mb-3">
+                                        <label class="form-label small fw-bold text-uppercase text-muted" id="labelM">x</label>
+                                        <input type="text" class="form-control" th:field="*{m}" id="inputM" placeholder="Mũ x" />
+                                    </div>
+                                    <div id="group-y" class="col-6 mb-3 d-none">
+                                        <label class="form-label small fw-bold text-uppercase text-muted" id="labelY">y</label>
+                                        <input type="text" class="form-control" th:field="*{y}" id="inputY" placeholder="Mũ y" />
+                                    </div>
+                                </div>
+
+                                <div id="group-n" class="mb-3">
+                                    <label class="form-label small fw-bold text-uppercase text-muted" id="labelN">n (Mô-đun)</label>
+                                    <input type="text" class="form-control" th:field="*{n}" id="inputN" placeholder="Ví dụ: 181" />
+                                </div>
+
+                                <div id="group-system" class="mb-3 d-none">
+                                    <label class="form-label small fw-bold text-uppercase text-muted">Hệ phương trình (a,m; a,m; ...)</label>
+                                    <textarea class="form-control" th:field="*{system}" id="inputSystem" rows="3" placeholder="6,13; 8,17; 14,19"></textarea>
+                                </div>
+
+                                <button type="submit" class="btn btn-primary-custom w-100 py-2 mt-2">Thực thi</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xl-8 col-lg-7">
+                    <div th:if="${response != null}">
+                        <div th:if="${response.errorMessage != null}" class="alert alert-danger mb-4" th:text="${response.errorMessage}"></div>
+                        <div th:if="${response.result != null}">
+                            <div class="card card-crypto mb-4 border-primary">
+                                <div class="card-body p-4">
+                                    <span class="small fw-bold text-uppercase text-muted">Kết quả</span>
+                                    <div class="fs-2 fw-bold text-primary" th:text="${response.result}"></div>
+                                </div>
+                            </div>
+                            <div th:if="${not #lists.isEmpty(response.transcript)}">
+                                <h6 class="fw-bold mb-3 small text-uppercase text-muted">Chi tiết các bước</h6>
+                                <div class="transcript-container">
+                                    <div th:each="line : ${response.transcript}" th:text="${line}"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script th:inline="javascript">
+        function updateFields() {
+            const op = document.getElementById('inputOp').value;
+            const sub = document.getElementById('inputSub');
+            const groupSub = document.getElementById('group-subMethod');
+            const ga = document.getElementById('group-a');
+            const gb = document.getElementById('group-b');
+            const gx = document.getElementById('group-m'); // Using m-group for x
+            const gn = document.getElementById('group-n');
+            const gs = document.getElementById('group-system');
+            const gy = document.getElementById('group-y');
+            
+            const la = document.getElementById('labelA');
+            const lb = document.getElementById('labelB');
+            const lx = document.getElementById('labelM');
+            const ln = document.getElementById('labelN');
+            const ly = document.getElementById('labelY');
+
+            const rAB = document.getElementById('row-ab');
+            const rMY = document.getElementById('row-my');
+
+            // Reset Visibility
+            rAB.classList.add('d-none');
+            rMY.classList.add('d-none');
+            ga.classList.add('d-none');
+            gb.classList.add('d-none');
+            gx.classList.add('d-none');
+            gn.classList.add('d-none');
+            gs.classList.add('d-none');
+            gy.classList.add('d-none');
+            groupSub.classList.add('d-none');
+            
+            // Reset Labels
+            la.innerText = "a";
+            if(lb) lb.innerText = "b";
+            lx.innerText = "m (Số mũ)";
+            ln.innerText = "n (Mô-đun)";
+
+            if (op === 'POWER') {
+                groupSub.classList.remove('d-none');
+                rAB.classList.remove('d-none');
+                rMY.classList.remove('d-none');
+                ga.classList.remove('d-none');
+                gx.classList.remove('d-none');
+                gn.classList.remove('d-none');
+                lx.innerText = "m (Số mũ)";
+                if (sub.innerHTML.trim() === "" || sub.dataset.owner !== 'POWER') {
+                    sub.innerHTML = `
+                        <option value="BASIC">Thuật toán Square & Multiply (Cơ bản)</option>
+                        <option value="FERMAT">Định lý Fermat nhỏ (n nguyên tố)</option>
+                        <option value="EULER">Định lý Euler (a,n nguyên tố cùng nhau)</option>
+                        <option value="CRT">Định lý số dư Trung Hoa (n hợp số)</option>
+                    `;
+                    sub.dataset.owner = 'POWER';
+                }
+            } else if (op === 'INVERSE') {
+                groupSub.classList.remove('d-none');
+                rAB.classList.remove('d-none');
+                ga.classList.remove('d-none');
+                gn.classList.remove('d-none');
+                la.innerText = "a (Số cần tìm nghịch đảo)";
+                if (sub.innerHTML.trim() === "" || sub.dataset.owner !== 'INVERSE') {
+                    sub.innerHTML = `
+                        <option value="EUCLID">Thuật toán Euclid mở rộng</option>
+                        <option value="BRUTE">Theo định nghĩa (Vét cạn)</option>
+                    `;
+                    sub.dataset.owner = 'INVERSE';
+                }
+            } else if (op === 'EULER') {
+                gn.classList.remove('d-none');
+                ln.innerText = "n (Số cần tính hàm Euler)";
+            } else if (op === 'CRT_SYS') {
+                gs.classList.remove('d-none');
+            } else if (op === 'PR') {
+                rAB.classList.remove('d-none');
+                ga.classList.remove('d-none');
+                gn.classList.remove('d-none');
+                la.innerText = "a (Số cần kiểm tra)";
+                ln.innerText = "n (Mô-đun)";
+            } else if (op === 'LOG') {
+                rAB.classList.remove('d-none');
+                ga.classList.remove('d-none');
+                gb.classList.remove('d-none');
+                gn.classList.remove('d-none');
+                la.innerText = "a (Cơ số)";
+                lb.innerText = "b (Kết quả a^k mod n)";
+            } else if (op === 'BASIC') {
+                rAB.classList.remove('d-none');
+                rMY.classList.remove('d-none');
+                ga.classList.remove('d-none');
+                gb.classList.remove('d-none');
+                gx.classList.remove('d-none');
+                gy.classList.remove('d-none');
+                gn.classList.remove('d-none');
+                la.innerText = "a";
+                lb.innerText = "b";
+                lx.innerText = "x (Mũ của a)";
+                document.getElementById('labelY').innerText = "y (Mũ của b)";
+            }
+        }
+
+        function useSample() {
+            const op = document.getElementById('inputOp').value;
+            const a = document.getElementById('inputA');
+            const b = document.getElementById('inputB');
+            const y = document.getElementById('inputY');
+            const m = document.getElementById('inputM');
+            const n = document.getElementById('inputN');
+            const s = document.getElementById('inputSystem');
+
+            switch(op) {
+                case 'POWER': a.value="419"; m.value="6217"; n.value="6217"; break;
+                case 'INVERSE': a.value="7"; n.value="11"; break;
+                case 'EULER': a.value="300"; n.value="300"; break;
+                case 'CRT_SYS': s.value="6,13; 8,17; 14,19"; break;
+                case 'PR': a.value="11"; n.value="331"; break;
+                case 'LOG': a.value="5"; b.value="7"; n.value="17"; break;
+                case 'BASIC': a.value="2"; b.value="3"; m.value="10"; y.value="10"; n.value="7"; break;
+            }
+        }
+
+        window.onload = function() {
+            updateFields();
+            // Restore subMethod value if it was set by server
+            const serverSub = /*[[${request.subMethod}]]*/ 'BASIC';
+            if (serverSub) document.getElementById('inputSub').value = serverSub;
+        };
+    </script>
+    <script src="/js/script.js"></script>
+</body>
+
+</html>

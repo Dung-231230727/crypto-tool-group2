@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mật mã cổ điển – Ngô Văn Dũng</title>
+    <link rel="stylesheet" href="/css/theme.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css" />
+    <script src="/js/script.js"></script>
+</head>
+
+<body class="d-flex">
+    <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+    <aside th:replace="~{fragments/sidebar :: sidebar}"></aside>
+
+    <main class="main-content">
+        <header class="mobile-header d-lg-none">
+            <button class="btn btn-link text-dark p-0" onclick="toggleSidebar()">
+                <i class="ti ti-menu-2 fs-1"></i>
+            </button>
+            <span class="fw-bold fs-3 text-dark">Classical</span>
+            <div style="width: 32px;"></div>
+        </header>
+
+        <div class="p-4 p-lg-5">
+            <div class="d-flex align-items-center justify-content-between mb-4">
+                <div>
+                    <span class="badge-custom mb-2 d-inline-block">Cá nhân</span>
+                    <h2 class="fw-bold mb-1">Mật mã cổ điển</h2>
+                    <p class="text-muted mb-0">Ngô Văn Dũng – Caesar, Chữ đơn, Playfair và Hoán vị.</p>
+                </div>
+            </div>
+
+            <div class="row g-4">
+                <div class="col-xl-4 col-lg-5 col-12">
+                    <div class="card card-crypto">
+                        <div class="card-body p-4">
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <h5 class="fw-bold mb-0">Cấu hình</h5>
+                                <button type="button" class="btn btn-sm btn-link text-primary text-decoration-none fw-bold p-0" onclick="useSampleData()">
+                                    <i class="ti ti-magic-wand me-1"></i>Dữ liệu mẫu
+                                </button>
+                            </div>
+
+                            <form th:action="@{/classical}" th:object="${request}" method="post">
+                                <div class="mb-3">
+                                    <label class="form-label small fw-bold text-uppercase text-muted">Thuật toán</label>
+                                    <select class="form-select" th:field="*{algorithm}" id="inputAlgo" onchange="updateFields()">
+                                        <option value="CAESAR">Caesar (Dịch chuyển)</option>
+                                        <option value="VIGENERE">Vigenere (Lặp khóa/Auto Key)</option>
+                                        <option value="MONO">Monoalphabetic (Chữ đơn)</option>
+                                        <option value="PLAYFAIR">Playfair (Ma trận 5x5)</option>
+                                        <option value="TRANSPOSITION">Transposition (Rail Fence)</option>
+                                    </select>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label small fw-bold text-uppercase text-muted">Văn bản</label>
+                                    <textarea class="form-control font-monospace" th:field="*{text}" id="inputText" rows="3" placeholder="Nhập văn bản..." required></textarea>
+                                </div>
+
+                                <div class="mb-4">
+                                    <label class="form-label small fw-bold text-uppercase text-muted" id="keyLabel">Khóa (Key)</label>
+                                    <input type="text" class="form-control font-monospace" th:field="*{key}" id="inputKey" placeholder="Khóa..." required />
+                                    <small class="text-muted mt-1 d-block" id="keyHelp"></small>
+                                </div>
+
+                                <div class="mb-4 d-none" id="group-keyType">
+                                    <label class="form-label small fw-bold text-uppercase text-muted">Kiểu khóa</label>
+                                    <select class="form-select" th:field="*{keyType}" id="inputKeyType">
+                                        <option value="REPEATING">Lặp khóa (Repeating Key)</option>
+                                        <option value="AUTOKEY">Tự động khóa (Autokey)</option>
+                                    </select>
+                                </div>
+
+                                <div class="mb-4">
+                                    <label class="form-label small fw-bold text-uppercase text-muted">Chế độ</label>
+                                    <div class="btn-group w-100">
+                                        <input type="radio" class="btn-check" th:field="*{mode}" value="ENCRYPT" id="mode-enc" checked>
+                                        <label class="btn btn-outline-primary" for="mode-enc">Mã hóa</label>
+                                        <input type="radio" class="btn-check" th:field="*{mode}" value="DECRYPT" id="mode-dec">
+                                        <label class="btn btn-outline-primary" for="mode-dec">Giải mã</label>
+                                    </div>
+                                </div>
+
+                                <button type="submit" class="btn btn-primary-custom w-100 py-2">Thực thi</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xl-8 col-lg-7">
+                    <div th:if="${response != null}">
+                        <div th:if="${response.errorMessage != null}" class="alert alert-danger border-0 shadow-sm mb-4">
+                            <i class="ti ti-alert-circle me-2"></i> <span th:text="${response.errorMessage}"></span>
+                        </div>
+
+                        <div th:if="${response.result != null}">
+                            <div class="card card-crypto mb-4 border-primary">
+                                <div class="card-body p-4">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <span class="small fw-bold text-uppercase text-muted">Kết quả</span>
+                                        <button class="btn btn-sm btn-outline-secondary rounded-pill" th:data-value="${response.result}" onclick="navigator.clipboard.writeText(this.dataset.value)">Sao chép</button>
+                                    </div>
+                                    <div class="fs-2 fw-bold font-monospace text-primary text-break" th:text="${response.result}"></div>
+                                </div>
+                            </div>
+
+                            <div th:if="${not #lists.isEmpty(response.transcript)}">
+                                <h6 class="fw-bold mb-3 small text-uppercase text-muted">Chi tiết các bước</h6>
+                                <div class="transcript-container" id="transcript-box">
+                                    <div th:each="line : ${response.transcript}" th:text="${line}"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div th:if="${response == null}" class="py-5 text-center text-muted">
+                        <i class="ti ti-category text-light mb-3 d-block" style="font-size: 3rem;"></i>
+                        Chọn thuật toán và nhập dữ liệu để bắt đầu.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script th:inline="javascript">
+        function updateFields() {
+            const algo = document.getElementById('inputAlgo').value;
+            const keyInput = document.getElementById('inputKey');
+            const keyHelp = document.getElementById('keyHelp');
+            const keyLabel = document.getElementById('keyLabel');
+            const groupKT = document.getElementById('group-keyType');
+
+            groupKT.classList.add('d-none');
+
+            if (algo === 'CAESAR') {
+                keyLabel.innerText = "Khóa (Bước dịch K)";
+                keyInput.placeholder = "Ví dụ: 3";
+                keyHelp.innerText = "Dịch chuyển các chữ cái đi K vị trí trong bảng chữ cái.";
+            } else if (algo === 'VIGENERE') {
+                keyLabel.innerText = "Khóa (Từ khóa)";
+                keyInput.placeholder = "Ví dụ: ABADBE";
+                keyHelp.innerText = "Sử dụng từ khóa để mã hóa (lặp khóa hoặc tự động khóa).";
+                groupKT.classList.remove('d-none');
+            } else if (algo === 'MONO') {
+                keyLabel.innerText = "Bảng hoán vị (26 ký tự)";
+                keyInput.placeholder = "Ví dụ: QWERTYUIOPASDFGHJKLZXCVBNM";
+                keyHelp.innerText = "Một chuỗi 26 chữ cái duy nhất làm bảng thay thế.";
+            } else if (algo === 'PLAYFAIR') {
+                keyLabel.innerText = "Khóa Playfair";
+                keyInput.placeholder = "Ví dụ: MONARCHY";
+                keyHelp.innerText = "Dùng từ khóa để tạo ma trận 5x5 (thay J bằng I).";
+            } else if (algo === 'TRANSPOSITION') {
+                keyLabel.innerText = "Số đường ray (Rails)";
+                keyInput.placeholder = "Ví dụ: 3";
+                keyHelp.innerText = "Mã hóa theo hình zic-zac (Rail Fence) với số hàng đã chọn.";
+            }
+        }
+
+        function useSampleData() {
+            const algo = document.getElementById('inputAlgo').value;
+            const input = document.getElementById('inputText');
+            const key = document.getElementById('inputKey');
+
+            switch (algo) {
+                case 'CAESAR':
+                    input.value = "AWOMANGIVESANDFO";
+                    key.value = "11";
+                    break;
+                case 'VIGENERE':
+                    input.value = "HONESTYISTHEBE";
+                    key.value = "ABADBE";
+                    document.getElementById('inputKeyType').value = 'REPEATING';
+                    break;
+                case 'MONO':
+                    input.value = "LIKEFATHERLIKESO";
+                    key.value = "LYFGMKNERXJPQIVATOHSZDBUCW";
+                    break;
+                case 'PLAYFAIR':
+                    input.value = "SOFARSOGOODSO";
+                    key.value = "EASTORW";
+                    break;
+                case 'TRANSPOSITION':
+                    input.value = "WHENINROMEDOASTHER";
+                    key.value = "4";
+                    break;
+            }
+        }
+
+        // Initialize placeholders on load
+        window.onload = updateFields;
+    </script>
+</body>
+
+</html>
