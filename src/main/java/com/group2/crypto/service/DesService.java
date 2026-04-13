@@ -167,9 +167,10 @@ public class DesService {
             response.setResult(binaryToHex(resultBin));
             response.setTranscript(transcript);
 
+        } catch (NumberFormatException e) {
+            response.setErrorMessage("Lỗi: Định dạng Hex không hợp lệ (chỉ chứa 0-9, A-F).");
         } catch (Exception e) {
             response.setErrorMessage("Lỗi xử lý: " + e.getMessage());
-            e.printStackTrace();
         }
 
         return response;

@@ -36,7 +36,12 @@ public class PublicKeyService {
             BigInteger q = new BigInteger(request.getP().trim());
             BigInteger a = new BigInteger(request.getG().trim());
             BigInteger xA = new BigInteger(request.getXA().trim());
-            BigInteger xB = new BigInteger(request.getYB().trim()); // Reusing yB field as xB
+            BigInteger xB = new BigInteger(request.getYB().trim());
+
+            if (!q.isProbablePrime(10)) {
+                response.setErrorMessage("Lỗi: q=" + q + " phải là số nguyên tố.");
+                return response;
+            }
 
             transcript.add("TRAO ĐỔI KHÓA DIFFIE-HELLMAN");
             transcript.add("Tham số chung: q = " + q + ", a = " + a);
@@ -74,11 +79,26 @@ public class PublicKeyService {
             BigInteger e = new BigInteger(request.getG().trim()); // Reused 'g' for 'e'
             BigInteger M = new BigInteger(request.getMessage().trim());
             String mode = request.getSubMethod().toUpperCase();
-
+            
             transcript.add("THUẬT TOÁN RSA - " + (mode.equals("SIGNATURE") ? "BÀI TOÁN 1 (CHỮ KÝ)" : "BÀI TOÁN 2 (BẢO MẬT)"));
+            
+            if (!p.isProbablePrime(10)) {
+                response.setErrorMessage("Lỗi: p=" + p + " phải là số nguyên tố.");
+                return response;
+            }
+            if (!q.isProbablePrime(10)) {
+                response.setErrorMessage("Lỗi: q=" + q + " phải là số nguyên tố.");
+                return response;
+            }
             
             BigInteger n = p.multiply(q);
             BigInteger phi = p.subtract(BigInteger.ONE).multiply(q.subtract(BigInteger.ONE));
+            
+            if (!e.gcd(phi).equals(BigInteger.ONE)) {
+                response.setErrorMessage("Lỗi: e=" + e + " và phi(n)=" + phi + " không nguyên tố cùng nhau. Không thể tìm nghịch đảo d.");
+                return response;
+            }
+            
             BigInteger d = e.modInverse(phi);
             
             transcript.add("a) Khóa công khai PU = {e, n} = {" + e + ", " + n + "}");
@@ -116,6 +136,11 @@ public class PublicKeyService {
             BigInteger xA = new BigInteger(request.getXA().trim());
             BigInteger k = new BigInteger(request.getK().trim());
             BigInteger M = new BigInteger(request.getMessage().trim());
+
+            if (!q.isProbablePrime(10)) {
+                response.setErrorMessage("Lỗi: q=" + q + " phải là số nguyên tố.");
+                return response;
+            }
 
             transcript.add("MẬT MÃ ELGAMAL");
             transcript.add("Tham số chung: q = " + q + ", a = " + a);
@@ -160,6 +185,15 @@ public class PublicKeyService {
             BigInteger x = new BigInteger(request.getXA().trim());
             BigInteger k = new BigInteger(request.getK().trim());
             BigInteger HM = new BigInteger(request.getMessage().trim());
+
+            if (!p.isProbablePrime(10)) {
+                response.setErrorMessage("Lỗi: p=" + p + " phải là số nguyên tố.");
+                return response;
+            }
+            if (!q.isProbablePrime(10)) {
+                response.setErrorMessage("Lỗi: q=" + q + " phải là số nguyên tố.");
+                return response;
+            }
 
             transcript.add("CHỮ KÝ ĐIỆN TỬ DSA");
             transcript.add(String.format("Tham số chung: p=%s, q=%s, h=%s", p, q, h));

@@ -51,6 +51,11 @@ public class ModuloMathService {
             BigInteger m = new BigInteger(request.getM());
             BigInteger n = new BigInteger(request.getN());
 
+            if (n.compareTo(BigInteger.ONE) <= 0) {
+                response.setErrorMessage("Lỗi: n (mô-đun) phải lớn hơn 1.");
+                return response;
+            }
+
             transcript.add("TÍNH LŨY THỪA MODULO: " + a + "^" + m + " mod " + n);
             String mBin = m.toString(2);
             transcript.add("Bước 1: " + m + "(10) = " + mBin + "(2)");
@@ -90,16 +95,21 @@ public class ModuloMathService {
 
             transcript.add("ĐỊNH LÝ FERMAT NHỎ: Tính " + a + "^" + m + " mod " + n);
             if (!n.isProbablePrime(10)) {
-                transcript.add("Lưu ý: " + n + " không phải số nguyên tố. Fermat chỉ áp dụng cho n nguyên tố.");
-            } else {
-                BigInteger nMinus1 = n.subtract(BigInteger.ONE);
-                BigInteger reducedExp = m.remainder(nMinus1);
-                transcript.add("1. n=" + n + " là số nguyên tố => a^(n-1) ≡ 1 (mod n)");
-                transcript.add("2. m' = m mod (n-1) = " + m + " mod " + nMinus1 + " = " + reducedExp);
-                BigInteger res = a.modPow(reducedExp, n);
-                transcript.add("3. " + a + "^" + reducedExp + " mod " + n + " = " + res);
-                response.setResult(res.toString());
+                response.setErrorMessage("Lỗi: n=" + n + " phải là số nguyên tố để áp dụng định lý Fermat nhỏ.");
+                return response;
             }
+            if (n.compareTo(BigInteger.ONE) <= 0) {
+                response.setErrorMessage("Lỗi: n (mô-đun) phải lớn hơn 1.");
+                return response;
+            }
+
+            BigInteger nMinus1 = n.subtract(BigInteger.ONE);
+            BigInteger reducedExp = m.remainder(nMinus1);
+            transcript.add("1. n=" + n + " là số nguyên tố => a^(n-1) ≡ 1 (mod n)");
+            transcript.add("2. m' = m mod (n-1) = " + m + " mod " + nMinus1 + " = " + reducedExp);
+            BigInteger res = a.modPow(reducedExp, n);
+            transcript.add("3. " + a + "^" + reducedExp + " mod " + n + " = " + res);
+            response.setResult(res.toString());
             response.setTranscript(transcript);
         } catch (Exception e) {
             response.setErrorMessage("Lỗi: " + e.getMessage());
@@ -114,6 +124,17 @@ public class ModuloMathService {
             BigInteger a = new BigInteger(request.getA());
             BigInteger m = new BigInteger(request.getM());
             BigInteger n = new BigInteger(request.getN());
+
+            if (n.compareTo(BigInteger.ONE) <= 0) {
+                response.setErrorMessage("Lỗi: n (mô-đun) phải lớn hơn 1.");
+                return response;
+            }
+
+            if (!a.gcd(n).equals(BigInteger.ONE)) {
+                 response.setErrorMessage("Lỗi: a=" + a + " và n=" + n + " không nguyên tố cùng nhau. Không thể áp dụng trực tiếp định lý Euler.");
+                 return response;
+            }
+
             BigInteger phi = getPhi(n);
             transcript.add("ỨNG DỤNG ĐỊNH LÝ EULER: Tính " + a + "^" + m + " mod " + n);
             transcript.add("1. Tính Φ(" + n + ") = " + phi);
@@ -342,6 +363,16 @@ public class ModuloMathService {
         try {
             BigInteger a = new BigInteger(request.getA());
             BigInteger n = new BigInteger(request.getN());
+            
+            if (n.compareTo(BigInteger.ONE) <= 0) {
+                response.setErrorMessage("Lỗi: n (mô-đun) phải lớn hơn 1.");
+                return response;
+            }
+            if (!a.gcd(n).equals(BigInteger.ONE)) {
+                response.setErrorMessage("Lỗi: a=" + a + " và n=" + n + " không nguyên tố cùng nhau. Căn nguyên thủy a phải nguyên tố cùng nhau với n.");
+                return response;
+            }
+
             transcript.add("KIỂM TRA CĂN NGUYÊN THỦY: a=" + a + ", n=" + n);
             
             BigInteger phi = getPhi(n);
@@ -418,6 +449,11 @@ public class ModuloMathService {
             BigInteger x = new BigInteger(request.getM().trim());
             BigInteger y = new BigInteger(request.getY().trim());
             BigInteger n = new BigInteger(request.getN().trim());
+            
+            if (n.compareTo(BigInteger.ONE) <= 0) {
+                response.setErrorMessage("Lỗi: n (mô-đun) phải lớn hơn 1.");
+                return response;
+            }
             
             BigInteger ax = a.modPow(x, n);
             BigInteger by = b.modPow(y, n);
